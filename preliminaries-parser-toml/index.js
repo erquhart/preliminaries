@@ -9,37 +9,37 @@
 'use strict';
 
 var preliminaries = require('preliminaries');
-var TOML = require('toml');
+var TOML = require('toml-js');
 
 /**
- * Expose `toml`
+ * Expose `tomlParser`
  */
 
-var toml = {};
+var tomlParser = {};
 
-module.exports = toml;
+module.exports = tomlParser;
 
 /**
  * Register as the default toml parser
  */
 
-preliminaries.parsers.toml = toml;
+preliminaries.parsers.toml = tomlParser;
 
 /**
  * Standard TOML delimiters
  */
-toml.delims = '+++';
+tomlParser.delims = '+++';
 
 /**
  * Parse TOML front matter.
  *
  * @param  {String} `str` The string to parse.
- * @param  {Object} `options` Options to pass to [toml-node].
+ * @param  {Object} `options` Options.
  * @return {Object} Parsed object of data.
  * @api public
  */
 
-toml.parse = function(str, opts) {
+tomlParser.parse = function(str, opts) {
   try {
     return TOML.parse(str);
   } catch (err) {
@@ -50,6 +50,21 @@ toml.parse = function(str, opts) {
     }
   }
 };
+
+/**
+ * Stringify front matter
+ *
+ * @param  {Object} `data` The data to stringify.
+ * @param  {Object} `options` Options.
+ * @return {String} Stringified data.
+ * @api public
+ */
+
+tomlParser.stringify = function(data, options) {
+  var res = TOML.dump(data);
+  res = res.replace(/(?:\r?\n){1,2}$/, '\n');
+  return res;
+}
 
 /**
  * Normalize error messages

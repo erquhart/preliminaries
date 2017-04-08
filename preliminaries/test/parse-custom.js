@@ -23,8 +23,8 @@ yaml.parse = function(str, opts) {
   }
 }
 
-describe('custom parser:', function() {
-  it('should allow a custom parser to be registered:', function() {
+describe('Custom parser:', function() {
+  it('should allow a custom parser to be registered', function() {
     var actual = preliminaries.parse(fs.readFileSync('./test/fixtures/lang-yaml.md', 'utf8'), {
       parser: yaml
     });

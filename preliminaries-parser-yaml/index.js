@@ -13,34 +13,34 @@ var extend = require('extend-shallow');
 var YAML = require('js-yaml');
 
 /**
- * Expose `yaml`
+ * Expose `yamlParser`
  */
 
-var yaml = {};
+var yamlParser = {};
 
-module.exports = yaml;
+module.exports = yamlParser;
 
 /**
  * Register as the default yaml parser
  */
 
-preliminaries.parsers.yaml = yaml;
+preliminaries.parsers.yaml = yamlParser;
 
 /**
  * Standard YAML delimiters
  */
-yaml.delims = '---';
+yamlParser.delims = '---';
 
 /**
  * Parse YAML front matter
  *
  * @param  {String} `str` The string to parse.
- * @param  {Object} `options` Options to pass to [js-yaml].
+ * @param  {Object} `options` Options.
  * @return {Object} Parsed object of data.
  * @api public
  */
 
-yaml.parse = function(str, options) {
+yamlParser.parse = function(str, options) {
   var opts = extend({strict: false}, options);
   try {
     return YAML.safeLoad(str, options);
@@ -53,7 +53,16 @@ yaml.parse = function(str, options) {
   }
 };
 
-yaml.stringify = function(data, options) {
+/**
+ * Stringify front matter
+ *
+ * @param  {Object} `data` The data to stringify.
+ * @param  {Object} `options` Options.
+ * @return {String} Stringified data.
+ * @api public
+ */
+
+yamlParser.stringify = function(data, options) {
   var res = YAML.safeDump(data, options);
   return res;
 }

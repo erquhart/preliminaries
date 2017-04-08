@@ -3,6 +3,7 @@ declare module "preliminaries" {
         parser?: PreliminariesParser;
         lang?: string;
         delims: string | string[];
+        stringifyLang: boolean;
     }
 
     export interface PreliminariesParser {
@@ -14,6 +15,7 @@ declare module "preliminaries" {
     export interface Preliminaries {
         parse (str: string, options?: PreliminariesOptions): any;
         stringify (str: string, data: Object, options?: PreliminariesOptions): string;
+        jsonParser: PreliminariesParser; 
     }
 
     var preliminaries: Preliminaries;

@@ -62,4 +62,13 @@ describe('parse json:', function() {
     actual.should.have.property('content');
     actual.should.have.property('orig');
   });
+
+  it('should export a JSON parser', function () {
+    var jsonParser = preliminaries.jsonParser;
+    var actual = preliminaries.parse(fs.readFileSync('./test/fixtures/lang-json.md', 'utf8'), {parser: jsonParser});
+    actual.data.title.should.equal('JSON');
+    actual.should.have.property('data');
+    actual.should.have.property('content');
+    actual.should.have.property('orig');
+  });
 });

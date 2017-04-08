@@ -188,11 +188,12 @@ preliminaries.parse = function(str, options) {
 preliminaries.stringify = function(str, data, options) {
   var opts = options || {};
   var lang = opts.lang || 'json';
+  var slang = typeof opts.stringifyLang !== 'undefined' ? opts.stringifyLang : !opts.delims;
   var parser = opts.parser || preliminaries.parsers[lang];
   if (parser && typeof parser.stringify === 'function') {
-    var delims = arrayify(options && options.delims || '---');
-    var res = delims[0] + '\n';
-    res += parser.stringify(data, options);
+    var delims = opts.delims = arrayify(opts.delims || '---');
+    var res = delims[0] + (slang ? lang : '') + '\n';
+    res += parser.stringify(data, opts);
     res += (delims[1] || delims[0]) + '\n';
     res += str + '\n';
     return res;
@@ -215,21 +216,23 @@ preliminaries.test = function(str, options) {
 };
 
 /**
- * Expose `json`
+ * Expose `preliminaries.jsonParser`
  */
 
-var json = {};
+var jsonParser = {};
+
+preliminaries.jsonParser = jsonParser;
 
 /**
  * Register as the default json parser
  */
 
-preliminaries.parsers.json = json;
+preliminaries.parsers.json = jsonParser;
 
 /**
  * Standard json delimiters
  */
-json.delims = ['{', '}'];
+jsonParser.delims = ['{', '}'];
 
 /**
  * Parse JSON front matter
@@ -239,7 +242,7 @@ json.delims = ['{', '}'];
  * @api public
  */
 
-json.parse = function(str, options) {
+jsonParser.parse = function(str, options) {
   var opts = extend({strict: false}, options);
   var delims = arrayify(opts && opts.delims || '---');
   try {
@@ -258,14 +261,14 @@ json.parse = function(str, options) {
 };
 
 /**
- * Stringify JSON front matter
+ * Stringify front matter
  *
  * @param  {Object} `data` The data to stringify.
  * @return {String} Stringified data.
  * @api public
  */
 
-json.stringify = function(data, options) {
+jsonParser.stringify = function(data, options) {
   var delims = arrayify(options && options.delims || '---');
   var res = JSON.stringify(data);
   var standard = delims.length === 2 && delims[0] === '{' && delims[1] === '}';

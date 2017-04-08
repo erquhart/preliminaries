@@ -12,7 +12,7 @@ var preliminaries = require('..');
 require('should');
 
 describe('Read from strings:', function () {
-  it('should return `true` if the string has front matter:', function () {
+  it('should return `true` if the string has front matter', function () {
     preliminaries.test('---\nabc: xyz\n---').should.be.true;
     preliminaries.test('---\nabc: xyz\n---', {delims: '~~~'}).should.be.false;
     preliminaries.test('~~~\nabc: xyz\n~~~', {delims: '~~~'}).should.be.true;

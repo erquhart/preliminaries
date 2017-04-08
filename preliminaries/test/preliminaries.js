@@ -1,3 +1,11 @@
+/*!
+ * preliminaries <https://github.com/josephearl/preliminaries.git>
+ *
+ * Copyright (C) 2017 Joseph Earl.
+ * Copyright (C) 2014-2015, Jon Schlinkert.
+ * Licensed under the MIT License.
+ */
+
 'use strict';
 
 var preliminaries = require('..');
@@ -18,20 +26,20 @@ lineEndings.forEach(function(lineEnding) {
       actual.data.abc.should.equal('xyz');
     });
 
-    it('should throw an error when front matter cannot be parsed:', function() {
+    it('should throw an error when front matter cannot be parsed', function() {
       (function() {
         var fixture = '---whatever' + lineEnding + '{' + lineEnding + '"abc":"xyz"' + lineEnding + '}' + lineEnding + '---';
         preliminaries.parse(fixture, { delims: '---' });
       }).should.throw('preliminaries cannot find a parser for: ---whatever' + lineEnding + '{' + lineEnding + '"abc":"xyz"' + lineEnding + '}' + lineEnding + '---');
     });
 
-    it('should throw an error when a string is not passed:', function() {
+    it('should throw an error when a string is not passed', function() {
       (function() {
         preliminaries.parse()
       }).should.throw('preliminaries expects a string');
     });
 
-    it('should return an object when the string is 0 length:', function() {
+    it('should return an object when the string is 0 length', function() {
       preliminaries.parse('').should.eql({orig: '', data: {}, content: ''});
     });
 
@@ -59,7 +67,7 @@ lineEndings.forEach(function(lineEnding) {
       actual.should.have.property('orig');
     });
 
-    it('should correctly identify delimiters and ignore strings that look like delimiters.', function() {
+    it('should correctly identify delimiters and ignore strings that look like delimiters', function() {
       var fixture = '---' + lineEnding + '{' + lineEnding + '"name":"troublesome --- value"' + lineEnding + '}' + lineEnding + '---' + lineEnding + 'here is some content' + lineEnding;
       var actual = preliminaries.parse(fixture, {delims: '---'});
       actual.should.have.property('data', {name: 'troublesome --- value'});

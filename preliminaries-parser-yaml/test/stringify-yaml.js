@@ -9,22 +9,22 @@
 'use strict';
 
 var preliminaries = require('preliminaries');
-var yaml = require("..");
+var yamlParser = require("..");
 require('should');
 
 describe('stringify YAML:', function () {
-  it('should extract front matter, extend it, and convert it back to front matter.', function () {
+  it('should extract front matter, extend it, and convert it back to front matter', function() {
     var data = {name: 'test-name'};
     var res = preliminaries.stringify('Name: {{name}}', data, {lang: 'yaml'});
     res.should.equal([
-      '---',
+      '---yaml',
       'name: test-name',
       '---',
       'Name: {{name}}\n'
     ].join('\n'));
   });
 
-  it('should use custom delimiters.', function () {
+  it('should use custom delimiters', function() {
     var data = {name: 'test-name'};
     var res = preliminaries.stringify('Name: {{name}}', data, {delims: '~~~', lang: 'yaml'});
     res.should.equal([
