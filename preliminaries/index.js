@@ -136,9 +136,9 @@ preliminaries.parsers.requires = {};
  */
 
 preliminaries.parsers.yaml = function(str, options) {
-  var opts = extend({strict: false, safeLoad: true}, options);
+  var opts = extend({strict: false}, options);
   try {
-    return opts.safeLoad ? YAML.safeLoad(str, options) : YAML.load(str, options);
+    return YAML.safeLoad(str, options);
   } catch (err) {
     if (opts.strict) {
       throw new SyntaxError(msg('js-yaml', err));
