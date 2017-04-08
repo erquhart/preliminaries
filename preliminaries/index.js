@@ -9,57 +9,106 @@
 'use strict';
 
 var extend = require('extend-shallow');
-var YAML = require('js-yaml');
 
 /**
- * Expose `preliminaries()`
+ * Expose `preliminaries`
  */
 
+var preliminaries = {}
+
 module.exports = preliminaries;
+
+/**
+ * Expose `parsers`
+ *
+ * @type {Object}
+ */
+
+preliminaries.parsers = {};
 
 /**
  * Parses a `string` of front matter with the given `options`,
  * and returns an object.
  *
  * ```js
- * preliminaries('---\ntitle: foo\n---\nbar');
+ * preliminaries.parse('---\ntitle: foo\n---\nbar');
  * //=> {data: {title: 'foo'}, content: 'bar', orig: '---\ntitle: foo\n---\nbar'}
  * ```
  *
  * @param {String} `string` The string to parse.
  * @param {Object} `options`
  *   @option {Array} [options] `delims` Custom delimiters formatted as an array. The default is `['---', '---']`.
- *   @option {Function} [options] `parser` Parser function to use. [js-yaml] is the default.
+ *   @option {Function} [options] `parser` Parser function to use.
  * @return {Object} Valid JSON
  * @api public
  */
 
-function preliminaries(str, options) {
+preliminaries.parse = function(str, options) {
   if (typeof str !== 'string') {
     throw new Error('preliminaries expects a string');
   }
+  var opts = options || {};
 
   // default results to build up
   var res = {orig: str, data: {}, content: str};
   if (str === '') {
     return res;
   }
-
-  // delimiters
-  var delims = arrayify((options && options.delims) || '---');
-  var a = delims[0];
-
+  
   // strip byte order marks
   str = stripBom(str);
+  var len = str.length;
+
+  // delimiters
+  var delims = '---';
+
+  // language
+  var lang = 'json';
+
+  // if no delimiters are set and if no parser and no language is defined,
+  // try to infer the language by matching the first delimiter with parsers
+  if (!opts.delims && !opts.parser && !opts.lang) {
+    var infer = true;
+    // Don't infer if the document has a possible language that can be detected
+    // like ---yaml
+    var dlen = delims.length;
+    if (len >= dlen + 1 && str.substr(0, dlen) === delims) {
+      var c = str.charAt(dlen);
+      if (c != '\n' && (c != '\r' && str.charAt(dlen + 1) != '\n')) {
+        infer = false;
+      }
+    }
+
+    if (infer) {
+      for (var l in preliminaries.parsers) {
+        if (preliminaries.parsers.hasOwnProperty(l) && preliminaries.parsers[l].delims) {
+          var parser = preliminaries.parsers[l];
+          var d = arrayify(parser.delims)[0];
+          if (str.length >= d.length + 1 && d === str.substr(0, d.length)) {
+            var c = str.charAt(d.length);
+            if (c === '\n' || (c === '\r' && str.charAt(d.length + 1) === '\n')) {
+              opts.delims = parser.delims;
+              opts.lang = l;
+            }
+            break;
+          }
+        }
+      }
+    }
+  }
+
+  delims = opts.delims = arrayify(opts.delims || delims);
+  lang = opts.lang || lang;
 
   // if the first delim isn't the first thing, return
+  var a = delims[0];
   if (!isFirst(str, a)) {
     return res;
   }
 
-  var b = '\n' + (delims[1] || delims[0]);
   var alen = a.length;
-
+  var b = '\n' + (delims[1] || delims[0]);
+  
   // if the next character after the first delim
   // is a character in the first delim, then just
   // return the default object. it's either a bad
@@ -68,8 +117,6 @@ function preliminaries(str, options) {
     return res;
   }
 
-  var len = str.length;
-
   // find the index of the next delimiter before
   // going any further. If not found, return.
   var end = str.indexOf(b, alen + 1);
@@ -77,23 +124,24 @@ function preliminaries(str, options) {
     end = len;
   }
 
-  // detect a language, if defined
-  var lang = str.slice(alen, str.indexOf('\n'));
+  // detect a language from after the first delimiters, if defined
+  var detected = str.slice(alen, str.indexOf('\n'));
   // measure the lang before trimming whitespace
-  var start = alen + lang.length;
-
-  var opts = options || {};
-  opts.lang = opts.lang || 'yaml';
-  lang = (lang && lang.trim()) || opts.lang;
+  var start = alen + detected.length;
+  detected = detected.trim();
+  if (!opts.parser && opts.lang && detected && detected !== opts.lang) {
+    throw new Error('preliminaries detected a different lang: ' + detected + ' to the one specified: ' + opts.lang);
+  }
+  lang = detected || lang;
 
   // get the front matter (data) string
   var data = str.slice(start, end).trim();
   if (data) {
     // if data exists, see if we have a matching parser
-    var fn = opts.parser || preliminaries.parsers[lang];
-    if (typeof fn === 'function') {
+    var parser = opts.parser || preliminaries.parsers[lang];
+    if (parser && typeof parser.parse === 'function') {
       // run the parser on the data string
-      res.data = fn(data, opts);
+      res.data = parser.parse(data, opts);
     } else {
       throw new Error('preliminaries cannot find a parser for: ' + str);
     }
@@ -113,64 +161,7 @@ function preliminaries(str, options) {
 }
 
 /**
- * Expose `parsers`
- *
- * @type {Object}
- */
-
-preliminaries.parsers = {};
-
-/**
- * Requires cache.
- */
-
-preliminaries.parsers.requires = {};
-
-/**
- * Parse YAML front matter
- *
- * @param  {String} `str` The string to parse.
- * @param  {Object} `options` Options to pass to [js-yaml].
- * @return {Object} Parsed object of data.
- * @api public
- */
-
-preliminaries.parsers.yaml = function(str, options) {
-  var opts = extend({strict: false}, options);
-  try {
-    return YAML.safeLoad(str, options);
-  } catch (err) {
-    if (opts.strict) {
-      throw new SyntaxError(msg('js-yaml', err));
-    } else {
-      return {};
-    }
-  }
-};
-
-/**
- * Parse JSON front matter
- *
- * @param  {String} `str` The string to parse.
- * @return {Object} Parsed object of data.
- * @api public
- */
-
-preliminaries.parsers.json = function(str, options) {
-  var opts = extend({strict: false}, options);
-  try {
-    return JSON.parse(str);
-  } catch (err) {
-    if (opts.strict) {
-      throw new SyntaxError(msg('JSON', err));
-    } else {
-      return {};
-    }
-  }
-};
-
-/**
- * Stringify an object to front matter YAML, and
+ * Stringify an object to front matter, and
  * concatenate it to the given string.
  *
  * ```js
@@ -180,26 +171,34 @@ preliminaries.parsers.json = function(str, options) {
  *
  * ```yaml
  * ---
+ * {
  * title: Home
+ * }
  * ---
  * foo bar baz
  * ```
  *
  * @param {String} `str` The content string to append to stringified front matter.
  * @param {Object} `data` Front matter to stringify.
- * @param {Object} `options` Options to pass to js-yaml
+ * @param {Object} `options` Options to pass to the parser.
  * @return {String}
  * @api public
  */
 
 preliminaries.stringify = function(str, data, options) {
-  var delims = arrayify(options && options.delims || '---');
-  var res = '';
-  res += delims[0] + '\n';
-  res += YAML.safeDump(data, options);
-  res += (delims[1] || delims[0]) + '\n';
-  res += str + '\n';
-  return res;
+  var opts = options || {};
+  var lang = opts.lang || 'json';
+  var parser = opts.parser || preliminaries.parsers[lang];
+  if (parser && typeof parser.stringify === 'function') {
+    var delims = arrayify(options && options.delims || '---');
+    var res = delims[0] + '\n';
+    res += parser.stringify(data, options);
+    res += (delims[1] || delims[0]) + '\n';
+    res += str + '\n';
+    return res;
+  } else {
+    throw new Error('preliminaries cannot find a parser for: ' + str);
+  }
 };
 
 /**
@@ -214,6 +213,67 @@ preliminaries.test = function(str, options) {
   var delims = arrayify(options && options.delims || '---');
   return isFirst(str, delims[0]);
 };
+
+/**
+ * Expose `json`
+ */
+
+var json = {};
+
+/**
+ * Register as the default json parser
+ */
+
+preliminaries.parsers.json = json;
+
+/**
+ * Standard json delimiters
+ */
+json.delims = ['{', '}'];
+
+/**
+ * Parse JSON front matter
+ *
+ * @param  {String} `str` The string to parse.
+ * @return {Object} Parsed object of data.
+ * @api public
+ */
+
+json.parse = function(str, options) {
+  var opts = extend({strict: false}, options);
+  var delims = arrayify(opts && opts.delims || '---');
+  try {
+    var standard = delims.length === 2 && delims[0] === '{' && delims[1] === '}';
+    var inp = standard ? '{' : '';
+    inp += str;
+    inp += standard ? '}' : '';
+    return JSON.parse(inp);
+  } catch (err) {
+    if (opts.strict) {
+      throw new SyntaxError(msg('JSON', err));
+    } else {
+      return {};
+    }
+  }
+};
+
+/**
+ * Stringify JSON front matter
+ *
+ * @param  {Object} `data` The data to stringify.
+ * @return {String} Stringified data.
+ * @api public
+ */
+
+json.stringify = function(data, options) {
+  var delims = arrayify(options && options.delims || '---');
+  var res = JSON.stringify(data);
+  var standard = delims.length === 2 && delims[0] === '{' && delims[1] === '}';
+  res = res.replace(/^{/, (standard ? '' : '{\n'));
+  res = res.replace(/}$/, (standard ? '' : '\n}'));
+  res += '\n';
+  return res;
+}
 
 /**
  * Return true if the given `ch` the first

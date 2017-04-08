@@ -8,9 +8,8 @@
 
 'use strict';
 
-var fs = require('fs');
-require('should');
 var preliminaries = require('..');
+require('should');
 
 describe('Read from strings:', function () {
   it('should return `true` if the string has front matter:', function () {

@@ -8,16 +8,14 @@
 
 'use strict';
 
+var preliminaries = require('preliminaries');
+var yaml = require("..");
 require('should');
-var fs = require('fs');
-var _ = require('lodash');
-var preliminaries = require('..');
-var pkg = require('../package');
 
-describe('.stringify()', function () {
+describe('stringify YAML:', function () {
   it('should extract front matter, extend it, and convert it back to front matter.', function () {
     var data = {name: 'test-name'};
-    var res = preliminaries.stringify('Name: {{name}}', data);
+    var res = preliminaries.stringify('Name: {{name}}', data, {lang: 'yaml'});
     res.should.equal([
       '---',
       'name: test-name',
@@ -28,7 +26,7 @@ describe('.stringify()', function () {
 
   it('should use custom delimiters.', function () {
     var data = {name: 'test-name'};
-    var res = preliminaries.stringify('Name: {{name}}', data, {delims: '~~~'});
+    var res = preliminaries.stringify('Name: {{name}}', data, {delims: '~~~', lang: 'yaml'});
     res.should.equal([
       '~~~',
       'name: test-name',

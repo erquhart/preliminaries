@@ -8,12 +8,14 @@
 
 'use strict';
 
-require('should');
 var preliminaries = require('..');
 var fs = require('fs');
 var YAML = require('js-yaml');
+require('should');
 
-function yaml(str, opts) {
+var yaml = {};
+
+yaml.parse = function(str, opts) {
   try {
     return YAML.safeLoad(str, opts);
   } catch (err) {
@@ -23,7 +25,7 @@ function yaml(str, opts) {
 
 describe('custom parser:', function() {
   it('should allow a custom parser to be registered:', function() {
-    var actual = preliminaries(fs.readFileSync('./test/fixtures/lang-yaml.md', 'utf8'), {
+    var actual = preliminaries.parse(fs.readFileSync('./test/fixtures/lang-yaml.md', 'utf8'), {
       parser: yaml
     });
     actual.data.title.should.equal('YAML');
