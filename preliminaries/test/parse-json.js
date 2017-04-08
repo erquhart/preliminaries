@@ -8,11 +8,20 @@
 
 'use strict';
 
-var preliminaries = require('..');
 var fs = require('fs');
 require('should');
 
 describe('parse JSON:', function() {
+  var preliminaries;
+  
+  before(function() {
+    preliminaries = require('..')(true);
+  });
+
+  after(function() {
+    preliminaries.unregisterParser('json');
+  });
+
   it('should parse JSON front matter', function() {
     var actual = preliminaries.parse(fs.readFileSync('./test/fixtures/lang-json.md', 'utf8'), {
       lang: 'json'

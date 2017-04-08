@@ -10,13 +10,12 @@
 
 var extend = require('extend-shallow');
 
-/**
- * Expose `preliminaries`
- */
-
-var preliminaries = {}
-
-module.exports = preliminaries;
+var preliminaries = function(autoRegister) {
+  if (autoRegister) {
+    preliminaries.registerParser('json', jsonParser);
+  }
+  return preliminaries;
+};
 
 /**
  * Expose `parsers`
@@ -55,28 +54,25 @@ preliminaries.parse = function(str, options) {
   }
   var opts = options || {};
 
-  // default results to build up
+  // Default results to build up
   var res = {orig: str, data: {}, content: str};
   if (str === '') {
     return res;
   }
   
-  // strip byte order marks
+  // Strip byte order marks
   str = stripBom(str);
   var len = str.length;
 
-  // delimiters
+  // Default language and delimiters
   var delims = '---';
-
-  // language
   var lang = 'json';
 
-  // if no delimiters are set and if no parser and no language is defined,
+  // If no delimiters are set and if no parser and no language is defined,
   // try to infer the language by matching the first delimiter with parsers
   if (!opts.delims && !opts.parser && !opts.lang) {
     var infer = true;
-    // Don't infer if the document has a possible language that can be detected
-    // like ---yaml
+    // don't infer if the document has a language in the front matter like `---yaml`
     var dlen = delims.length;
     if (len >= dlen + 1 && str.substr(0, dlen) === delims) {
       var c = str.charAt(dlen);
@@ -88,18 +84,15 @@ preliminaries.parse = function(str, options) {
     if (infer) {
       var ia = str.substr(0, str.indexOf('\n'));
       ia = ia.charAt(ia.length - 1) === '\r' ? ia.substr(0, ia.length - 1) : ia;
-      var ilang = preliminaries.parsersLangByFirstDelim[ia];
-      if (ilang && preliminaries.parsers[ilang]) {
-        opts.delims = preliminaries.parsers[ilang].delims;
-        lang = ilang;
-      }
+      lang = preliminaries.parsersLangByFirstDelim[ia];
+      opts.delims = preliminaries.parsers[lang].delims;
     }
   }
 
   delims = opts.delims = arrayify(opts.delims || delims);
   lang = opts.lang || lang;
 
-  // if the first delim isn't the first thing, return
+  // If the first delim isn't the first thing, return
   var a = delims[0];
   if (!isFirst(str, a)) {
     return res;
@@ -108,7 +101,7 @@ preliminaries.parse = function(str, options) {
   var alen = a.length;
   var b = '\n' + (delims[1] || delims[0]);
   
-  // if the next character after the first delim
+  // If the next character after the first delim
   // is a character in the first delim, then just
   // return the default object. it's either a bad
   // delim or not a delimiter at all.
@@ -116,16 +109,16 @@ preliminaries.parse = function(str, options) {
     return res;
   }
 
-  // find the index of the next delimiter before
+  // Find the index of the next delimiter before
   // going any further. If not found, return.
   var end = str.indexOf(b, alen + 1);
   if (end === -1) {
     end = len;
   }
 
-  // detect a language from after the first delimiters, if defined
+  // Detect a language from after the first delimiters, if defined
   var detected = str.slice(alen, str.indexOf('\n'));
-  // measure the lang before trimming whitespace
+  // Measure the lang before trimming whitespace
   var start = alen + detected.length;
   detected = detected.trim();
   if (!opts.parser && opts.lang && detected && detected !== opts.lang) {
@@ -133,20 +126,20 @@ preliminaries.parse = function(str, options) {
   }
   lang = detected || lang;
 
-  // get the front matter (data) string
+  // Get the front matter (data) string
   var data = str.slice(start, end).trim();
   if (data) {
-    // if data exists, see if we have a matching parser
+    // If data exists, see if we have a matching parser
     var parser = opts.parser || preliminaries.parsers[lang];
     if (parser && typeof parser.parse === 'function') {
-      // run the parser on the data string
+      // Run the parser on the data string
       res.data = parser.parse(data, opts);
     } else {
       throw new Error('preliminaries cannot find a parser for: ' + str);
     }
   }
 
-  // grab the content from the string, stripping
+  // Grab the content from the string, stripping
   // an optional new line after the second delim
   var con = str.substr(end + b.length);
   if (con.charAt(0) === '\n') {
@@ -187,7 +180,7 @@ preliminaries.stringify = function(str, data, options) {
   var opts = options || {};
   var lang = opts.lang || 'json';
 
-  // whether to stringify the language or not
+  // Whether to stringify the language or not
   var slang = typeof opts.stringifyLang !== 'undefined' ? opts.stringifyLang : !opts.delims;
 
   var parser = opts.parser || preliminaries.parsers[lang];
@@ -308,10 +301,10 @@ jsonParser.stringify = function(data, options) {
 preliminaries.jsonParser = jsonParser;
 
 /**
- * Register as the default json parser
+ * Expose `preliminaries`
  */
 
-preliminaries.registerParser('json', jsonParser);
+module.exports = preliminaries;
 
 /**
  * Return true if the given `ch` the first

@@ -8,10 +8,19 @@
 
 'use strict';
 
-var preliminaries = require('..');
 require('should');
 
 describe('stringify JSON:', function() {
+  var preliminaries;
+  
+  before(function() {
+    preliminaries = require('..')(true);
+  });
+
+  after(function() {
+    preliminaries.unregisterParser('json');
+  });
+
   it('stringify json by default', function() {
     var data = {name: 'test-name'};
     var res = preliminaries.stringify('Name: {{name}}', data);

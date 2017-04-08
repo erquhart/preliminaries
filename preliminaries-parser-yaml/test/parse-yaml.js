@@ -16,7 +16,7 @@ describe('parse YAML:', function() {
   var yamlParser;
   
   before(function() {
-    yamlParser = require("..")(true);
+    yamlParser = require('..')(true);
   });
 
   after(function() {

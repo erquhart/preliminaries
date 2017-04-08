@@ -8,7 +8,6 @@
 
 'use strict';
 
-var preliminaries = require('..');
 var fs = require('fs');
 var YAML = require('js-yaml');
 require('should');
@@ -24,6 +23,16 @@ yaml.parse = function(str, opts) {
 }
 
 describe('Custom parser:', function() {
+  var preliminaries;
+  
+  before(function() {
+    preliminaries = require('..')(true);
+  });
+
+  after(function() {
+    preliminaries.unregisterParser('json');
+  });
+
   it('should allow a custom parser to be registered', function() {
     var actual = preliminaries.parse(fs.readFileSync('./test/fixtures/lang-yaml.md', 'utf8'), {
       parser: yaml

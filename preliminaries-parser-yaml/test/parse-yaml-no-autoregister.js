@@ -9,7 +9,7 @@
 'use strict';
 
 var preliminaries = require('preliminaries');
-var yamlParser = require("..");
+var yamlParser = require('..');
 var fs = require('fs');
 require('should');
 

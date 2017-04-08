@@ -8,14 +8,22 @@
 
 'use strict';
 
-var preliminaries = require('..');
 var fs = require('fs');
 require('should');
 
 var lineEndings = ['\n', '\r\n'];
-
 lineEndings.forEach(function(lineEnding) {
-  describe('Read from strings with lineEnding ' + lineEnding.replace('\n', '\\n').replace('\r', '\\r') + ':', function () {
+  describe('Read from strings with lineEnding ' + lineEnding.replace('\n', '\\n').replace('\r', '\\r') + ':', function() {
+    var preliminaries;
+  
+    before(function() {
+      preliminaries = require('..')(true);
+    });
+
+    after(function() {
+      preliminaries.unregisterParser('json');
+    });
+
     it('should extract JSON front matter', function() {
       var fixture = '---' + lineEnding + '{' + lineEnding + '"abc":"xyz"' + lineEnding + '}' + lineEnding + '---';
       var actual = preliminaries.parse(fixture, { delims: '---' });

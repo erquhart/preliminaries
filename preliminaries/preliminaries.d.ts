@@ -4,6 +4,7 @@ declare module "preliminaries" {
         lang?: string;
         delims: string | string[];
         stringifyLang: boolean;
+        stringifyUseParserDelims: boolean;
     }
 
     export interface PreliminariesParser {
@@ -14,6 +15,7 @@ declare module "preliminaries" {
     }
 
     export interface Preliminaries {
+        (autoRegister: boolean): Preliminaries;
         parse(str: string, options?: PreliminariesOptions): any;
         stringify(str: string, data: Object, options?: PreliminariesOptions): string;
         registerParser(lang: string, parser: PreliminariesParser): void;

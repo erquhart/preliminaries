@@ -16,7 +16,7 @@ describe('parse TOML:', function() {
   var tomlParser;
   
   before(function() {
-    tomlParser = require("..")(true);
+    tomlParser = require('..')(true);
   });
 
   after(function() {
