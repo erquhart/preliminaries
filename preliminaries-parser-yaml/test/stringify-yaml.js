@@ -43,4 +43,15 @@ describe('stringify YAML:', function() {
       'Name: {{name}}\n'
     ].join('\n'));
   });
+
+  it('should use parser delimiters', function() {
+    var data = {name: 'test-name'};
+    var res = preliminaries.stringify('Name: {{name}}', data, {stringifyUseParserDelims: true, lang: 'yaml'});
+    res.should.equal([
+      '---',
+      'name: test-name',
+      '---',
+      'Name: {{name}}\n'
+    ].join('\n'));
+  });
 });

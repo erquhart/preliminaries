@@ -99,6 +99,17 @@ describe('stringify JSON:', function() {
     ].join('\n'));
   });
 
+  it('use parser delimiters', function() {
+    var data = {name: 'test-name'};
+    var res = preliminaries.stringify('Name: {{name}}', data, {stringifyUseParserDelims: true});
+    res.should.equal([
+      '{',
+      '"name":"test-name"',
+      '}',
+      'Name: {{name}}\n'
+    ].join('\n'));
+  });
+
   it('should stringify json with standard delimiters', function() {
     var data = {name: 'test-name'};
     var res = preliminaries.stringify('Name: {{name}}', data, {lang: 'json', delims: ['{', '}']});

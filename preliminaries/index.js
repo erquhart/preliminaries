@@ -181,11 +181,11 @@ preliminaries.stringify = function(str, data, options) {
   var lang = opts.lang || 'json';
 
   // Whether to stringify the language or not
-  var slang = typeof opts.stringifyLang !== 'undefined' ? opts.stringifyLang : !opts.delims;
+  var slang = typeof opts.stringifyLang !== 'undefined' ? opts.stringifyLang : !opts.delims && !opts.stringifyUseParserDelims;
 
   var parser = opts.parser || preliminaries.parsers[lang];
   if (parser && typeof parser.stringify === 'function') {
-    var delims = opts.delims = arrayify(opts.delims || '---');
+    var delims = opts.delims = arrayify(opts.delims || (opts.stringifyUseParserDelims && parser.delims ? parser.delims : '---'));
     var res = delims[0] + (slang ? lang : '') + '\n';
     res += parser.stringify(data, opts);
     res += (delims[1] || delims[0]) + '\n';
