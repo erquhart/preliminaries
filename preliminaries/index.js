@@ -10,8 +10,8 @@
 
 var extend = require('extend-shallow');
 
-var preliminaries = function(autoRegister) {
-  if (autoRegister) {
+var preliminaries = function(register) {
+  if (register) {
     preliminaries.registerParser('json', jsonParser);
   }
   return preliminaries;
@@ -207,10 +207,17 @@ preliminaries.registerParser = function(lang, parser) {
   if (typeof lang !== 'string') {
     throw new Error('preliminaries expects a language string');
   }
-  preliminaries.parsers[lang] = parser;
-  if (parser.delims) {
-    preliminaries.parsersLangByFirstDelim[arrayify(parser.delims)[0]] = lang;
+  if (preliminaries.parsers[lang]) {
+    preliminaries.unregisterParser(lang);
   }
+  if (parser.delims) {
+    var a = arrayify(parser.delims)[0];
+    if (preliminaries.parsersLangByFirstDelim[a] && preliminaries.parsersLangByFirstDelim[a] !== lang) {
+      throw new Error('preliminaries cannot register the parser because the delimiters clash with an already registered parser for lang: ' + preliminaries.parsersLangByFirstDelim[a]);
+    }
+    preliminaries.parsersLangByFirstDelim[a] = lang;
+  }
+  preliminaries.parsers[lang] = parser;
 };
 
 /**

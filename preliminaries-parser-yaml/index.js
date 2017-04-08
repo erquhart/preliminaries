@@ -11,8 +11,8 @@
 var extend = require('extend-shallow');
 var YAML = require('js-yaml');
 
-var yamlParser = function(autoRegister) {
-  if (autoRegister) {
+var yamlParser = function(register) {
+  if (register) {
     var preliminaries = require('preliminaries');
     preliminaries.registerParser('yaml', yamlParser);
   }

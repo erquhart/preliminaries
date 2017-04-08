@@ -10,8 +10,8 @@
 
 var TOML = require('toml-js');
 
-var tomlParser = function(autoRegister) {
-  if (autoRegister) {
+var tomlParser = function(register) {
+  if (register) {
     var preliminaries = require('preliminaries');
     preliminaries.registerParser('toml', tomlParser);
   }
