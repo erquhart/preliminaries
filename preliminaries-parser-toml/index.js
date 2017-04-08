@@ -12,6 +12,18 @@ var preliminaries = require('preliminaries');
 var TOML = require('toml');
 
 /**
+ * Expose `toml()`
+ */
+
+module.exports = toml;
+
+/**
+ * Register as the default toml parser
+ */
+
+preliminaries.parsers.toml = toml;
+
+/**
  * Parse TOML front matter.
  *
  * @param  {String} `str` The string to parse.
@@ -20,7 +32,7 @@ var TOML = require('toml');
  * @api public
  */
 
-preliminaries.parsers.toml = function(str, opts) {
+function toml(str, opts) {
   try {
     return TOML.parse(str);
   } catch (err) {

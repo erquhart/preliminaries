@@ -11,12 +11,23 @@
 var fs = require('fs');
 require('should');
 var preliminaries = require('preliminaries');
-require("..");
+var toml = require("..");
 
 describe('parse TOML:', function () {
   it('should parse toml front matter.', function () {
     var actual = preliminaries('---\ntitle = "TOML"\ndescription = "Front matter"\ncategories = "front matter toml"\n---\n\n# This file has toml front matter!\n', {
       lang: 'toml'
+    });
+    actual.data.title.should.equal('TOML');
+    actual.should.have.property('data');
+    actual.should.have.property('content');
+    actual.should.have.property('orig');
+  });
+
+  it('should provide a TOML parser.', function () {
+    preliminaries.parsers.abc = toml;
+    var actual = preliminaries('---\ntitle = "TOML"\ndescription = "Front matter"\ncategories = "front matter toml"\n---\n\n# This file has toml front matter!\n', {
+      lang: 'abc'
     });
     actual.data.title.should.equal('TOML');
     actual.should.have.property('data');
