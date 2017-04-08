@@ -11,11 +11,9 @@
 var preliminaries = require('preliminaries');
 require('should');
 
-describe('stringify YAML:', function() {
-  var yamlParser;
-  
+describe('stringify YAML:', function() {  
   before(function() {
-    yamlParser = require('..')(true);
+    require('..')(true);
   });
 
   after(function() {

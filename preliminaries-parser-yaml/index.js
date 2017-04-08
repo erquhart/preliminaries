@@ -58,21 +58,13 @@ yamlParser.parse = function(str, options) {
 yamlParser.stringify = function(data, options) {
   var res = YAML.safeDump(data, options);
   return res;
-}
+};
 
 /**
  * Expose `yamlParser`
  */
 
 module.exports = yamlParser;
-
-/**
- * Typecast `val` to an array.
- */
-
-function arrayify(val) {
-  return !Array.isArray(val) ? [val] : val;
-}
 
 /**
  * Normalize error messages

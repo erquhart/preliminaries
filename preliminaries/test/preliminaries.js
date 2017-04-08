@@ -53,7 +53,7 @@ lineEndings.forEach(function(lineEnding) {
 
     it('should throw an error when a string is not passed', function() {
       (function() {
-        preliminaries.parse()
+        preliminaries.parse();
       }).should.throw('preliminaries expects a string');
     });
 

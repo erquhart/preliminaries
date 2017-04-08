@@ -21,6 +21,6 @@ publish:
 	cd preliminaries-parser-toml && npm publish && cd ..
 	cd preliminaries-parser-yaml && npm publish && cd ..
 
-all: install test
+all: lint test
 
 .PHONY: install lint test publish all

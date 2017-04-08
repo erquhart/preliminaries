@@ -11,18 +11,16 @@
 var preliminaries = require('preliminaries');
 require('should');
 
-describe('stringify TOML:', function () {
-  var tomlParser;
-
+describe('stringify TOML:', function() {
   before(function() {
-    tomlParser = require('..')(true);
+    require('..')(true);
   });
 
   after(function() {
     preliminaries.unregisterParser('toml');
   });
 
-  it('should extract front matter, extend it, and convert it back to front matter', function () {
+  it('should extract front matter, extend it, and convert it back to front matter', function() {
     var data = {name: 'test-name'};
     var res = preliminaries.stringify('Name: {{name}}', data, {lang: 'toml'});
     res.should.equal([
@@ -33,7 +31,7 @@ describe('stringify TOML:', function () {
     ].join('\n'));
   });
 
-  it('should stringify TOML', function () {
+  it('should stringify TOML', function() {
     var data = {name: 'test-name'};
     var res = preliminaries.stringify('Name: {{name}}', data, {delims: '+++', lang: 'toml'});
     res.should.equal([
@@ -44,7 +42,7 @@ describe('stringify TOML:', function () {
     ].join('\n'));
   });
 
-  it('should use custom delimiters', function () {
+  it('should use custom delimiters', function() {
     var data = {name: 'test-name'};
     var res = preliminaries.stringify('Name: {{name}}', data, {delims: '~~~', lang: 'toml'});
     res.should.equal([
@@ -55,7 +53,7 @@ describe('stringify TOML:', function () {
     ].join('\n'));
   });
 
-  it('should use parser delimiters', function () {
+  it('should use parser delimiters', function() {
     var data = {name: 'test-name'};
     var res = preliminaries.stringify('Name: {{name}}', data, {stringifyUseParserDelims: true, lang: 'toml'});
     res.should.equal([

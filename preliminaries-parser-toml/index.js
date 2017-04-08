@@ -57,7 +57,7 @@ tomlParser.stringify = function(data, options) {
   var res = TOML.dump(data);
   res = res.replace(/(?:\r?\n){1,2}$/, '\n');
   return res;
-}
+};
 
 /**
  * Expose `tomlParser`

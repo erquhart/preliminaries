@@ -4,7 +4,7 @@ os:
   - osx
 language: node_js
 install: make install
-script: make test
+script: make all
 node_js:
   - node
   - '6'

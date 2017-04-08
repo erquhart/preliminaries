@@ -20,7 +20,7 @@ yaml.parse = function(str, opts) {
   } catch (err) {
     throw new SyntaxError(err);
   }
-}
+};
 
 describe('Custom parser:', function() {
   var preliminaries;

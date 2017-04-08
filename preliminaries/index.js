@@ -76,7 +76,7 @@ preliminaries.parse = function(str, options) {
     var dlen = delims.length;
     if (len >= dlen + 1 && str.substr(0, dlen) === delims) {
       var c = str.charAt(dlen);
-      if (c != '\n' && (c != '\r' && str.charAt(dlen + 1) != '\n')) {
+      if (c !== '\n' && (c !== '\r' && str.charAt(dlen + 1) !== '\n')) {
         infer = false;
       }
     }
@@ -150,7 +150,7 @@ preliminaries.parse = function(str, options) {
 
   res.content = con;
   return res;
-}
+};
 
 /**
  * Stringify an object to front matter, and
@@ -211,7 +211,7 @@ preliminaries.registerParser = function(lang, parser) {
   if (parser.delims) {
     preliminaries.parsersLangByFirstDelim[arrayify(parser.delims)[0]] = lang;
   }
-}
+};
 
 /**
  * Unegister a parser
@@ -230,7 +230,7 @@ preliminaries.unregisterParser = function(lang) {
       delete preliminaries.parsersLangByFirstDelim[arrayify(parser.delims)[0]];
     }
   }
-}
+};
 
 /**
  * Return true if the given `string` has front matter.
@@ -292,7 +292,7 @@ jsonParser.stringify = function(data, options) {
   res = res.replace(/}$/, (standard ? '' : '\n}'));
   res += '\n';
   return res;
-}
+};
 
 /**
  * Expose `preliminaries.jsonParser`
