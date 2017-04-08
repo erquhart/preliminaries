@@ -16,9 +16,19 @@ var lineEndings = ['\n', '\r\n'];
 
 lineEndings.forEach(function(lineEnding) {
   describe('Read from strings with lineEnding ' + lineEnding.replace('\n', '\\n').replace('\r', '\\r') + ':', function () {
-    it('should extract JSON front matter', function () {
+    it('should extract JSON front matter', function() {
       var fixture = '---' + lineEnding + '{' + lineEnding + '"abc":"xyz"' + lineEnding + '}' + lineEnding + '---';
       var actual = preliminaries.parse(fixture, { delims: '---' });
+      actual.should.have.property('data');
+      actual.should.have.property('content');
+      actual.should.have.property('orig');
+      actual.data.should.have.property('abc');
+      actual.data.abc.should.equal('xyz');
+    });
+
+    it('should autodetect JSON', function() {
+      var fixture = '{' + lineEnding + '"abc":"xyz"' + lineEnding + '}';
+      var actual = preliminaries.parse(fixture);
       actual.should.have.property('data');
       actual.should.have.property('content');
       actual.should.have.property('orig');

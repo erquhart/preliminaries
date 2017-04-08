@@ -24,7 +24,14 @@ module.exports = preliminaries;
  * @type {Object}
  */
 
-preliminaries.parsers = {};
+preliminaries.parsers = [];
+
+/**
+ * Parsers by first delimiter
+ *
+ * @type {Object}
+ */
+preliminaries.parsersLangByFirstDelim = [];
 
 /**
  * Parses a `string` of front matter with the given `options`,
@@ -40,7 +47,6 @@ preliminaries.parsers = {};
  *   @option {Array} [options] `delims` Custom delimiters formatted as an array. The default is `['---', '---']`.
  *   @option {Function} [options] `parser` Parser function to use.
  * @return {Object} Valid JSON
- * @api public
  */
 
 preliminaries.parse = function(str, options) {
@@ -80,19 +86,12 @@ preliminaries.parse = function(str, options) {
     }
 
     if (infer) {
-      for (var l in preliminaries.parsers) {
-        if (preliminaries.parsers.hasOwnProperty(l) && preliminaries.parsers[l].delims) {
-          var parser = preliminaries.parsers[l];
-          var d = arrayify(parser.delims)[0];
-          if (str.length >= d.length + 1 && d === str.substr(0, d.length)) {
-            var c = str.charAt(d.length);
-            if (c === '\n' || (c === '\r' && str.charAt(d.length + 1) === '\n')) {
-              opts.delims = parser.delims;
-              opts.lang = l;
-            }
-            break;
-          }
-        }
+      var ia = str.substr(0, str.indexOf('\n'));
+      ia = ia.charAt(ia.length - 1) === '\r' ? ia.substr(0, ia.length - 1) : ia;
+      var ilang = preliminaries.parsersLangByFirstDelim[ia];
+      if (ilang && preliminaries.parsers[ilang]) {
+        opts.delims = preliminaries.parsers[ilang].delims;
+        lang = ilang;
       }
     }
   }
@@ -182,13 +181,15 @@ preliminaries.parse = function(str, options) {
  * @param {Object} `data` Front matter to stringify.
  * @param {Object} `options` Options to pass to the parser.
  * @return {String}
- * @api public
  */
 
 preliminaries.stringify = function(str, data, options) {
   var opts = options || {};
   var lang = opts.lang || 'json';
+
+  // whether to stringify the language or not
   var slang = typeof opts.stringifyLang !== 'undefined' ? opts.stringifyLang : !opts.delims;
+
   var parser = opts.parser || preliminaries.parsers[lang];
   if (parser && typeof parser.stringify === 'function') {
     var delims = opts.delims = arrayify(opts.delims || '---');
@@ -203,6 +204,42 @@ preliminaries.stringify = function(str, data, options) {
 };
 
 /**
+ * Register a parser
+ *
+ * @param  {String} `lang` The language to register the parser for.
+ * @param  {Object} `parser` The parser.
+ */
+
+preliminaries.registerParser = function(lang, parser) {
+  if (typeof lang !== 'string') {
+    throw new Error('preliminaries expects a language string');
+  }
+  preliminaries.parsers[lang] = parser;
+  if (parser.delims) {
+    preliminaries.parsersLangByFirstDelim[arrayify(parser.delims)[0]] = lang;
+  }
+}
+
+/**
+ * Unegister a parser
+ *
+ * @param  {String} `lang` The language to unregister the parser from.
+ */
+
+preliminaries.unregisterParser = function(lang) {
+  if (typeof lang !== 'string') {
+    throw new Error('preliminaries expects a language string');
+  }
+  var parser = preliminaries.parsers[lang];
+  if (parser) {
+    delete preliminaries.parsers[lang];
+    if (parser.delims) {
+      delete preliminaries.parsersLangByFirstDelim[arrayify(parser.delims)[0]];
+    }
+  }
+}
+
+/**
  * Return true if the given `string` has front matter.
  *
  * @param  {String} `string`
@@ -215,19 +252,7 @@ preliminaries.test = function(str, options) {
   return isFirst(str, delims[0]);
 };
 
-/**
- * Expose `preliminaries.jsonParser`
- */
-
 var jsonParser = {};
-
-preliminaries.jsonParser = jsonParser;
-
-/**
- * Register as the default json parser
- */
-
-preliminaries.parsers.json = jsonParser;
 
 /**
  * Standard json delimiters
@@ -239,7 +264,6 @@ jsonParser.delims = ['{', '}'];
  *
  * @param  {String} `str` The string to parse.
  * @return {Object} Parsed object of data.
- * @api public
  */
 
 jsonParser.parse = function(str, options) {
@@ -265,7 +289,6 @@ jsonParser.parse = function(str, options) {
  *
  * @param  {Object} `data` The data to stringify.
  * @return {String} Stringified data.
- * @api public
  */
 
 jsonParser.stringify = function(data, options) {
@@ -277,6 +300,18 @@ jsonParser.stringify = function(data, options) {
   res += '\n';
   return res;
 }
+
+/**
+ * Expose `preliminaries.jsonParser`
+ */
+
+preliminaries.jsonParser = jsonParser;
+
+/**
+ * Register as the default json parser
+ */
+
+preliminaries.registerParser('json', jsonParser);
 
 /**
  * Return true if the given `ch` the first

@@ -12,7 +12,7 @@ var preliminaries = require('..');
 var fs = require('fs');
 require('should');
 
-describe('parse json:', function() {
+describe('parse JSON:', function() {
   it('should parse JSON front matter', function() {
     var actual = preliminaries.parse(fs.readFileSync('./test/fixtures/lang-json.md', 'utf8'), {
       lang: 'json'

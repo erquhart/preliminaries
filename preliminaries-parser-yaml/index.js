@@ -8,23 +8,16 @@
 
 'use strict';
 
-var preliminaries = require('preliminaries');
 var extend = require('extend-shallow');
 var YAML = require('js-yaml');
 
-/**
- * Expose `yamlParser`
- */
-
-var yamlParser = {};
-
-module.exports = yamlParser;
-
-/**
- * Register as the default yaml parser
- */
-
-preliminaries.parsers.yaml = yamlParser;
+var yamlParser = function(autoRegister) {
+  if (autoRegister) {
+    var preliminaries = require('preliminaries');
+    preliminaries.registerParser('yaml', yamlParser);
+  }
+  return yamlParser;
+};
 
 /**
  * Standard YAML delimiters
@@ -66,6 +59,12 @@ yamlParser.stringify = function(data, options) {
   var res = YAML.safeDump(data, options);
   return res;
 }
+
+/**
+ * Expose `yamlParser`
+ */
+
+module.exports = yamlParser;
 
 /**
  * Typecast `val` to an array.

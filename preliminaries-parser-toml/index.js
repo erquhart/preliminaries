@@ -8,22 +8,15 @@
 
 'use strict';
 
-var preliminaries = require('preliminaries');
 var TOML = require('toml-js');
 
-/**
- * Expose `tomlParser`
- */
-
-var tomlParser = {};
-
-module.exports = tomlParser;
-
-/**
- * Register as the default toml parser
- */
-
-preliminaries.parsers.toml = tomlParser;
+var tomlParser = function(autoRegister) {
+  if (autoRegister) {
+    var preliminaries = require('preliminaries');
+    preliminaries.registerParser('toml', tomlParser);
+  }
+  return tomlParser;
+};
 
 /**
  * Standard TOML delimiters
@@ -65,6 +58,12 @@ tomlParser.stringify = function(data, options) {
   res = res.replace(/(?:\r?\n){1,2}$/, '\n');
   return res;
 }
+
+/**
+ * Expose `tomlParser`
+ */
+
+module.exports = tomlParser;
 
 /**
  * Normalize error messages

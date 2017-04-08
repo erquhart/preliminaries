@@ -9,10 +9,19 @@
 'use strict';
 
 var preliminaries = require('preliminaries');
-var yamlParser = require("..");
 require('should');
 
-describe('stringify YAML:', function () {
+describe('stringify YAML:', function() {
+  var yamlParser;
+  
+  before(function() {
+    yamlParser = require("..")(true);
+  });
+
+  after(function() {
+    preliminaries.unregisterParser('yaml');
+  });
+
   it('should extract front matter, extend it, and convert it back to front matter', function() {
     var data = {name: 'test-name'};
     var res = preliminaries.stringify('Name: {{name}}', data, {lang: 'yaml'});

@@ -7,14 +7,17 @@ declare module "preliminaries" {
     }
 
     export interface PreliminariesParser {
-        parse (str: string, options?: PreliminariesOptions): any;
-        stringify (data: Object, options?: PreliminariesOptions): string;
+        (autoRegister: boolean): PreliminariesParser;
+        parse(str: string, options?: PreliminariesOptions): any;
+        stringify(data: Object, options?: PreliminariesOptions): string;
         delims: string | string[];
     }
 
     export interface Preliminaries {
-        parse (str: string, options?: PreliminariesOptions): any;
-        stringify (str: string, data: Object, options?: PreliminariesOptions): string;
+        parse(str: string, options?: PreliminariesOptions): any;
+        stringify(str: string, data: Object, options?: PreliminariesOptions): string;
+        registerParser(lang: string, parser: PreliminariesParser): void;
+        unregisterParser(lang: string): void;
         jsonParser: PreliminariesParser; 
     }
 

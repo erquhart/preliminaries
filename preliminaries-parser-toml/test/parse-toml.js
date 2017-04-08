@@ -9,11 +9,20 @@
 'use strict';
 
 var preliminaries = require('preliminaries');
-var tomlParser = require("..");
 var fs = require('fs');
 require('should');
 
 describe('parse TOML:', function() {
+  var tomlParser;
+  
+  before(function() {
+    tomlParser = require("..")(true);
+  });
+
+  after(function() {
+    preliminaries.unregisterParser('toml');
+  });
+
   it('should parse toml front matter', function() {
     var fixture = '---\ntitle = "TOML"\ndescription = "Front matter"\ncategories = "front matter toml"\n---\n\n# This file has toml front matter!\n';
     var actual = preliminaries.parse(fixture, {lang: 'toml'});

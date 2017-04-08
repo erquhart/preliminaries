@@ -9,10 +9,19 @@
 'use strict';
 
 var preliminaries = require('preliminaries');
-var tomlParser = require("..");
 require('should');
 
 describe('stringify TOML:', function () {
+  var tomlParser;
+  
+  before(function() {
+    tomlParser = require("..")(true);
+  });
+
+  after(function() {
+    preliminaries.unregisterParser('toml');
+  });
+
   it('should extract front matter, extend it, and convert it back to front matter', function () {
     var data = {name: 'test-name'};
     var res = preliminaries.stringify('Name: {{name}}', data, {lang: 'toml'});
