@@ -1,4 +1,4 @@
-## Contribute
+## Contributing
 
 These are the basic steps for contributing to sbt-verify:
 
@@ -13,6 +13,6 @@ These are the basic steps for contributing to sbt-verify:
 
 Every pull request will be built with Travis CI.
 
-# Contributors
+## Contributors
 
 * Joseph Earl ([JosephEarl](https://github.com/josephearl))
