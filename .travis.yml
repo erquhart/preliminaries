@@ -3,12 +3,8 @@ os:
   - linux
   - osx
 language: node_js
-install:
-  - cd preliminaries && npm install -d && cd ..
-  - cd preliminaries-parser-toml && npm install -d && cd ..
-script: 
-  - cd preliminaries && npm test && cd ..
-  - cd preliminaries-parser-toml && npm test && cd ..
+install: make install
+script: make test
 node_js:
   - node
   - '6'

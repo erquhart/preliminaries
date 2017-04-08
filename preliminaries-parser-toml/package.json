@@ -22,7 +22,7 @@
   },
   "scripts": {
     "lint": "eslint .",
-    "test": "cd ../preliminaries && npm link && cd ../preliminaries-parser-toml && npm link preliminaries && mocha"
+    "test": "mocha"
   },
   "peerDependencies": {
     "preliminaries": "^1.0.0"
