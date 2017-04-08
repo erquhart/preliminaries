@@ -1,4 +1,4 @@
-# preliminaries
+# preliminaries [![Linux Build Status](https://travis-ci.org/josephearl/preliminaries.svg?branch=master)](https://travis-ci.org/josephearl/preliminaries)
 
 Simple front matter parser for Markdown that supports JSON, YAML, TOML and custom parsers. 
 
