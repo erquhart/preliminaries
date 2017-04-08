@@ -24,9 +24,11 @@ describe('parse TOML:', function() {
   });
 
   it('should parse toml front matter', function() {
-    var fixture = '---\ntitle = "TOML"\ndescription = "Front matter"\ncategories = "front matter toml"\n---\n\n# This file has toml front matter!\n';
+    var fixture = '---\ntitle = "TOML"\ndescription = "Front matter"\ncategories = ["front", "matter", "toml"]\n---\n\n# This file has toml front matter!\n';
     var actual = preliminaries.parse(fixture, {lang: 'toml'});
     actual.data.title.should.equal('TOML');
+    actual.data.description.should.equal('Front matter');
+    actual.data.categories.join(',').should.equal('front,matter,toml');
     actual.should.have.property('data');
     actual.should.have.property('content');
     actual.should.have.property('orig');
@@ -68,6 +70,6 @@ describe('parse TOML:', function() {
     (function() {
       var fixture = '---toml\n[group]\nkey=1\n\n[group.key]\nval=2\n\n---\nContent\n';
       preliminaries.parse(fixture, {lang: 'toml', strict: true});
-    }).should.throw('preliminaries parser [TOML]: Error: "key" is overriding existing value');
+    }).should.throw('preliminaries parser [TOML]: Error: Cannot redefine existing key \'group,key\'.');
   });
 });

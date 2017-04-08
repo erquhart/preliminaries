@@ -54,11 +54,11 @@ describe('stringify TOML:', function() {
   });
 
   it('should use parser delimiters', function() {
-    var data = {name: 'test-name'};
+    var data = {name: 'a long test name'};
     var res = preliminaries.stringify('Name: {{name}}', data, {stringifyUseParserDelims: true, lang: 'toml'});
     res.should.equal([
       '+++',
-      'name = "test-name"',
+      'name = "a long test name"',
       '+++',
       'Name: {{name}}\n'
     ].join('\n'));

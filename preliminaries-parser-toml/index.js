@@ -8,7 +8,9 @@
 
 'use strict';
 
-var TOML = require('toml-js');
+var TOML = require('toml');
+var tomljs = require('toml-js');
+TOML.stringify = tomljs.dump;
 
 var tomlParser = function(register) {
   if (register) {
@@ -54,7 +56,7 @@ tomlParser.parse = function(str, opts) {
  */
 
 tomlParser.stringify = function(data, options) {
-  var res = TOML.dump(data);
+  var res = TOML.stringify(data);
   res = res.replace(/(?:\r?\n){1,2}$/, '\n');
   return res;
 };

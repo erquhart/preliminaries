@@ -22,7 +22,7 @@ describe('stringify JSON:', function() {
   });
 
   it('stringify json by default', function() {
-    var data = {name: 'test-name'};
+    var data = {name: 'a long test name'};
     var res = preliminaries.stringify('Name: {{name}}', data);
     res.should.equal([
       '---json',

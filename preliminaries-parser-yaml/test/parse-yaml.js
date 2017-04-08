@@ -32,9 +32,10 @@ describe('parse YAML:', function() {
   });
 
   it('should export a YAML parser', function() {
-    var fixture = '---\ntitle: YAML here\n---\n\n# This file has YAML front matter!\n';
+    var fixture = '---\ntitle: YAML here\ncategories:\n - front\n - matter\n---\n\n# This file has YAML front matter!\n';
     var actual = preliminaries.parse(fixture, {parser: yamlParser});
     actual.data.title.should.equal('YAML here');
+    actual.data.categories.join(',').should.equal('front,matter');
     actual.should.have.property('data');
     actual.should.have.property('content');
     actual.should.have.property('orig');
