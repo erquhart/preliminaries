@@ -1,19 +1,20 @@
 /*!
- * gray-matter <https://github.com/jonschlinkert/gray-matter.git>
+ * preliminaries <https://github.com/josephearl/preliminaries.git>
  *
- * Copyright (c) 2014-2015, Jon Schlinkert.
+ * Copyright (C) 2017 Joseph Earl.
+ * Copyright (C) 2014-2015, Jon Schlinkert.
  * Licensed under the MIT License.
  */
 
 'use strict';
 
-var fs = require('fs');
 require('should');
-var matter = require('..');
+var preliminaries = require('..');
+var fs = require('fs');
 
 describe('parse json:', function () {
   it('should parse JSON front matter.', function () {
-    var actual = matter.read('./test/fixtures/lang-json.md', {
+    var actual = preliminaries(fs.readFileSync('./test/fixtures/lang-json.md', 'utf8'), {
       lang: 'json'
     });
 
@@ -24,7 +25,7 @@ describe('parse json:', function () {
   });
 
   it('should auto-detect JSON as the language.', function () {
-    var actual = matter.read('./test/fixtures/autodetect-json.md');
+    var actual = preliminaries(fs.readFileSync('./test/fixtures/autodetect-json.md', 'utf8'));
     actual.data.title.should.equal('autodetect-JSON');
     actual.should.have.property('content');
     actual.should.have.property('orig');

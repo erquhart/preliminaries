@@ -1,19 +1,20 @@
 /*!
- * gray-matter <https://github.com/jonschlinkert/gray-matter.git>
+ * preliminaries <https://github.com/josephearl/preliminaries.git>
  *
- * Copyright (c) 2014-2015, Jon Schlinkert.
+ * Copyright (C) 2017 Joseph Earl.
+ * Copyright (C) 2014-2015, Jon Schlinkert.
  * Licensed under the MIT License.
  */
 
 'use strict';
 
-var fs = require('fs');
 require('should');
-var matter = require('..');
+var preliminaries = require('..');
+var fs = require('fs');
 
 describe('parse YAML:', function () {
   it('should parse YAML front matter.', function () {
-    var actual = matter.read('./test/fixtures/lang-yaml.md');
+    var actual = preliminaries(fs.readFileSync('./test/fixtures/lang-yaml.md', 'utf8'));
     actual.data.title.should.equal('YAML');
     actual.should.have.property('data');
     actual.should.have.property('content');
@@ -21,7 +22,7 @@ describe('parse YAML:', function () {
   });
 
   it('should detect YAML as the language with no language defined after the first fence.', function () {
-    var actual = matter.read('./test/fixtures/autodetect-no-lang.md');
+    var actual = preliminaries(fs.readFileSync('./test/fixtures/autodetect-no-lang.md', 'utf8'));
     actual.data.title.should.equal('autodetect-no-lang');
     actual.should.have.property('data');
     actual.should.have.property('content');
@@ -29,7 +30,7 @@ describe('parse YAML:', function () {
   });
 
   it('should detect YAML as the language.', function () {
-    var actual = matter.read('./test/fixtures/autodetect-yaml.md');
+    var actual = preliminaries(fs.readFileSync('./test/fixtures/autodetect-yaml.md', 'utf8'));
     actual.data.title.should.equal('autodetect-yaml');
     actual.should.have.property('data');
     actual.should.have.property('content');
@@ -38,7 +39,7 @@ describe('parse YAML:', function () {
 
   it('should use safeLoad when specified.', function () {
     var fixture = '---\nabc: xyz\nversion: 2\n---\n\n<span class="alert alert-info">This is an alert</span>\n';
-    var actual = matter(fixture, {safeLoad: true});
+    var actual = preliminaries(fixture, {safeLoad: true});
     actual.should.have.property('data', {abc: 'xyz', version: 2});
     actual.should.have.property('content', '\n<span class="alert alert-info">This is an alert</span>\n');
     actual.should.have.property('orig');

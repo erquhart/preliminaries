@@ -1,21 +1,29 @@
-'use strict';
-
-var fs = require('fs');
-var extend = require('extend-shallow');
-var parsers = require('./lib/parsers');
-
-/**
- * Expose `matter()`
+/*!
+ * preliminaries <https://github.com/josephearl/preliminaries.git>
+ *
+ * Copyright (c) 2017, Joseph Earl.
+ * Copyright (c) 2014-2017, Jon Schlinkert.
+ * Licensed under the MIT License.
  */
 
-module.exports = matter;
+'use strict';
+
+var extend = require('extend-shallow');
+var YAML = require('js-yaml');
+var TOML = require('toml');
 
 /**
- * Parses a `string` of front-matter with the given `options`,
+ * Expose `preliminaries()`
+ */
+
+module.exports = preliminaries;
+
+/**
+ * Parses a `string` of front matter with the given `options`,
  * and returns an object.
  *
  * ```js
- * matter('---\ntitle: foo\n---\nbar');
+ * preliminaries('---\ntitle: foo\n---\nbar');
  * //=> {data: {title: 'foo'}, content: 'bar', orig: '---\ntitle: foo\n---\nbar'}
  * ```
  *
@@ -27,9 +35,9 @@ module.exports = matter;
  * @api public
  */
 
-function matter(str, options) {
+function preliminaries(str, options) {
   if (typeof str !== 'string') {
-    throw new Error('gray-matter expects a string');
+    throw new Error('preliminaries expects a string');
   }
 
   // default results to build up
@@ -83,12 +91,12 @@ function matter(str, options) {
   var data = str.slice(start, end).trim();
   if (data) {
     // if data exists, see if we have a matching parser
-    var fn = opts.parser || parsers[lang];
+    var fn = opts.parser || preliminaries.parsers[lang];
     if (typeof fn === 'function') {
       // run the parser on the data string
       res.data = fn(data, opts);
     } else {
-      throw new Error('gray-matter cannot find a parser for: ' + str);
+      throw new Error('preliminaries cannot find a parser for: ' + str);
     }
   }
 
@@ -111,42 +119,84 @@ function matter(str, options) {
  * @type {Object}
  */
 
-matter.parsers = parsers;
+preliminaries.parsers = {};
 
 /**
- * Requires cache
+ * Requires cache.
  */
 
-var YAML = matter.parsers.requires.yaml || (matter.parsers.requires.yaml = require('js-yaml'));
+preliminaries.parsers.requires = {};
 
 /**
- * Read a file and parse front matter. Returns the same object
- * as `matter()`.
+ * Parse YAML front matter
  *
- * ```js
- * matter.read('home.md');
- * ```
- *
- * @param {String} `fp` file path of the file to read.
- * @param {Object} `options` Options to pass to gray-matter.
- * @return {Object}
+ * @param  {String} `str` The string to parse.
+ * @param  {Object} `options` Options to pass to [js-yaml].
+ * @return {Object} Parsed object of data.
  * @api public
  */
 
-matter.read = function(fp, options) {
-  var str = fs.readFileSync(fp, 'utf8');
-  var obj = matter(str, options);
-  return extend(obj, {
-    path: fp
-  });
+preliminaries.parsers.yaml = function(str, options) {
+  var opts = extend({strict: false, safeLoad: false}, options);
+  try {
+    return opts.safeLoad ? YAML.safeLoad(str, options) : YAML.load(str, options);
+  } catch (err) {
+    if (opts.strict) {
+      throw new SyntaxError(msg('js-yaml', err));
+    } else {
+      return {};
+    }
+  }
 };
 
 /**
- * Stringify an object to front-matter-formatted YAML, and
+ * Parse JSON front matter
+ *
+ * @param  {String} `str` The string to parse.
+ * @return {Object} Parsed object of data.
+ * @api public
+ */
+
+preliminaries.parsers.json = function(str, options) {
+  var opts = extend({strict: false}, options);
+  try {
+    return JSON.parse(str);
+  } catch (err) {
+    if (opts.strict) {
+      throw new SyntaxError(msg('JSON', err));
+    } else {
+      return {};
+    }
+  }
+};
+
+/**
+ * Parse TOML front matter.
+ *
+ * @param  {String} `str` The string to parse.
+ * @param  {Object} `options` Options to pass to [toml-node].
+ * @return {Object} Parsed object of data.
+ * @api public
+ */
+
+preliminaries.parsers.toml = function(str, opts) {
+  try {
+    return TOML.parse(str);
+  } catch (err) {
+    if (opts.strict) {
+      throw new SyntaxError(msg('TOML', err));
+    } else {
+      return {};
+    }
+  }
+};
+
+/**
+ * Stringify an object to front matter YAML, and
  * concatenate it to the given string.
  *
  * ```js
- * matter.stringify('foo bar baz', {title: 'Home'});
+ * preliminaries.stringify('foo bar baz', {title: 'Home'});
  * ```
  * Results in:
  *
@@ -157,14 +207,14 @@ matter.read = function(fp, options) {
  * foo bar baz
  * ```
  *
- * @param {String} `str` The content string to append to stringified front-matter.
+ * @param {String} `str` The content string to append to stringified front matter.
  * @param {Object} `data` Front matter to stringify.
  * @param {Object} `options` Options to pass to js-yaml
  * @return {String}
  * @api public
  */
 
-matter.stringify = function(str, data, options) {
+preliminaries.stringify = function(str, data, options) {
   var delims = arrayify(options && options.delims || '---');
   var res = '';
   res += delims[0] + '\n';
@@ -182,7 +232,7 @@ matter.stringify = function(str, data, options) {
  * @return {Boolean} True if front matter exists.
  */
 
-matter.test = function(str, options) {
+preliminaries.test = function(str, options) {
   var delims = arrayify(options && options.delims || '---');
   return isFirst(str, delims[0]);
 };
@@ -210,4 +260,12 @@ function stripBom(str) {
 
 function arrayify(val) {
   return !Array.isArray(val) ? [val] : val;
+}
+
+/**
+ * Normalize error messages
+ */
+
+function msg(lang, err) {
+  return 'preliminaries parser [' + lang + ']: ' + err;
 }

@@ -1,9 +1,9 @@
 {
-  "name": "gray-matter",
-  "description": "Parse front-matter from a string or file. Fast, reliable and easy to use. Parses YAML front matter by default, but also has support for YAML, JSON, TOML or Coffee Front-Matter, with options to set custom delimiters. Used by metalsmith, assemble, verb and many other projects.",
-  "version": "2.1.1",
-  "homepage": "https://github.com/jonschlinkert/gray-matter",
-  "author": "Jon Schlinkert (https://github.com/jonschlinkert)",
+  "name": "preliminaries",
+  "description": "Simple front matter parser that supports YAML, JSON and TOML.",
+  "version": "1.0.0",
+  "homepage": "https://github.com/josephearl/preliminaries",
+  "author": "Joseph Earl (https://github.com/josephearl)",
   "contributors": [
     "Andrew Meyer (https://github.com/Ajedi32)",
     "Brian Woodward <brian.woodward@gmail.com> (https://github.com/doowb)",
@@ -12,13 +12,13 @@
     "Pawel Kadluczka (http://blog.3d-logic.com)",
     "Rob Loach <robloach@gmail.com> (http://robloach.net)"
   ],
-  "repository": "jonschlinkert/gray-matter",
+  "repository": "josephearl/preliminaries",
   "bugs": {
-    "url": "https://github.com/jonschlinkert/gray-matter/issues"
+    "url": "https://github.com/josephearl/preliminaries/issues"
   },
   "license": "MIT",
   "files": [
-    "gray-matter.d.ts",
+    "preliminaries.d.ts",
     "index.js",
     "lib"
   ],
@@ -27,11 +27,10 @@
     "node": ">=0.10.0"
   },
   "scripts": {
+    "lint": "eslint .",
     "test": "mocha"
   },
   "dependencies": {
-    "ansi-red": "^0.1.1",
-    "coffee-script": "^1.12.4",
     "extend-shallow": "^2.0.1",
     "js-yaml": "^3.8.1",
     "toml": "^2.3.2"
@@ -56,8 +55,6 @@
   },
   "keywords": [
     "assemble",
-    "coffee",
-    "coffee-script",
     "data",
     "docs",
     "documentation",
@@ -86,31 +83,5 @@
     "yaml",
     "yfm"
   ],
-  "typings": "gray-matter.d.ts",
-  "verb": {
-    "related": {
-      "list": [
-        "assemble",
-        "metalsmith",
-        "verb"
-      ]
-    },
-    "toc": false,
-    "layout": "default",
-    "tasks": [
-      "readme"
-    ],
-    "plugins": [
-      "gulp-format-md"
-    ],
-    "lint": {
-      "reflinks": true
-    },
-    "reflinks": [
-      "assemble",
-      "front-matter",
-      "verb",
-      "verb-generate-readme"
-    ]
-  }
+  "typings": "preliminaries.d.ts"
 }
