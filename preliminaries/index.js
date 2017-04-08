@@ -85,10 +85,10 @@ preliminaries.parse = function(str, options) {
       var ia = str.substr(0, idlen);
       ia = ia.charAt(ia.length - 1) === '\r' ? ia.substr(0, ia.length - 1) : ia;
       ia = ia.trim();
-      if (ia && preliminaries.parsersLangByFirstDelim[ia]) {
-        lang = preliminaries.parsersLangByFirstDelim[ia];
+      var inferred = preliminaries.parsersLangByFirstDelim[ia];
+      if (ia && inferred) {
+        lang = inferred;
         opts.delims = preliminaries.parsers[lang].delims;
-        console.log('infer', lang, opts.delims);
       }
     }
   }
