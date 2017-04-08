@@ -47,9 +47,9 @@ describe('stringify JSON:', function() {
     ].join('\n'));
   });
 
-  it('not stringify lang if stringifyLang is false', function() {
+  it('not stringify lang if stringifyIncludeLang is false', function() {
     var data = {name: 'test-name'};
-    var res = preliminaries.stringify('Name: {{name}}', data, {stringifyLang: false});
+    var res = preliminaries.stringify('Name: {{name}}', data, {stringifyIncludeLang: false});
     res.should.equal([
       '---',
       '{',
@@ -60,9 +60,9 @@ describe('stringify JSON:', function() {
     ].join('\n'));
   });
 
-  it('stringify lang if custom delimiters are used and stringifyLang is true', function() {
+  it('stringify lang if custom delimiters are used and stringifyIncludeLang is true', function() {
     var data = {name: 'test-name'};
-    var res = preliminaries.stringify('Name: {{name}}', data, {delims: '~~~', stringifyLang: true});
+    var res = preliminaries.stringify('Name: {{name}}', data, {delims: '~~~', stringifyIncludeLang: true});
     res.should.equal([
       '~~~json',
       '{',

@@ -4,7 +4,7 @@ Simple front matter parser for Markdown that supports JSON, YAML, TOML and custo
 
 Forked from the excellent [gray-matter](), prelimimaries strips things down and makes the YAML and TOML parsers entirely optional, as well as supporting stringifying languages other than YAML.
 
-Improved parsing and auto-detection of languages supports JSON front matter with `{}` plain delimiters and TOML with `+++` delimiters as used in [Hugo]().
+Improved parsing and auto-detection of languages supports JSON front matter with `{` and `}` plain delimiters and TOML with `+++` delimiters as used in [Hugo]().
 
 ## Dependency
 
@@ -66,7 +66,7 @@ preliminaries.parse('{\n"name":"Joseph"\n}\nContent')
 }
 ```
 
-or YAML (make sure to require `preliminaries-parser-yaml`):
+or YAML:
 
 ```js
 preliminaries.parse('---\nname: Joseph\n---\nContent')
@@ -78,7 +78,19 @@ preliminaries.parse('---\nname: Joseph\n---\nContent')
 }
 ```
 
-and it can automatically detect any language embedded after the first delimiter such as `---yaml` or `---json`.
+and even TOML:
+
+```js
+preliminaries.parse('+++\nname = "Joseph"\n+++\nContent')
+// Returns
+{
+  data: {name: 'Joseph'},
+  content: 'Content',
+  orig: '+++\nname = "Joseph"\n+++\nContent',
+}
+```
+
+It can automatically detect any language embedded after the first delimiter such as `---yaml` or `---json`, as well standard delimiters for languages such as `+++` for TOML or `{` and `}` for JSON.
 
 Use custom delimiters:
 
@@ -143,11 +155,17 @@ Content
 
 ### `Preliminaries.registerParser(lang: string, parser: PreliminariesParser): void`
 
+Register a parser for a new language:
+
+```js
+preliminaries.registerParser('xml', xmlParser);
+```
+
 ### `Preliminaries.unregisterParser(lang: string): void`
 
 Unregister a previously registered parser:
 
-```
+```js
 preliminaries.unregisterParser('json');
 ```
 
@@ -166,3 +184,65 @@ preliminaries.parse('---xyz\n{\n"name":"Joseph"\n}\n---\nContent')
   orig: '---xyz\n{\n"name":"Joseph"\n}\n---\nContent',
 }
 ```
+
+## Options
+
+### `PreliminariesOptions.parser?: PreliminariesParser`
+
+Optionally provide a custom parser to use when parsing or stringifying.
+
+### `PreliminariesOptions.lang?: string`
+
+The language the front matter is in. 
+
+Required when parsing if using custom delimiters or whenever stringifying to language other than JSON. 
+
+### `PreliminariesOptions.delims?: string | string[]`
+
+Custom delimiters.
+
+A string (if start and end delimiters are the same), or an array of 2 elements containing the start and end delimiters.
+
+### `PreliminariesOptions.stringifyIncludeLang?: boolean`
+
+Whether to output the front matter language the first delimiter.
+
+If not set the language will be output when stringifying if a custom delimiters are not set with `PreliminariesOptions.delims` and `PreliminariesOptions.stringifyUseParserDelims` is not truthy.
+
+### `PreliminariesOptions.stringifyUseParserDelims?: boolean`
+
+Whether to stringify using the default delimiters defined by the parser for the language, instead of the default `---lang` format.
+
+## Creating parsers
+
+Your parser should include `preliminaries` as a `peerDependency` in your package.json.
+
+### `PreliminariesParser(register: boolean): PreliminariesParser`
+
+The root export of your parser should be a function that accepts a `boolean` value, if `truthy` you should register your parser for it's default language:
+
+```js
+var preliminaries = require('preliminaries');
+
+var myParser = function(register) {
+  if (register) {
+    preliminaries.registerParser('abc', myParser);
+  }
+}
+
+module.exports = myParser;
+```
+
+### `PreliminariesParser.parse(str: string, options?: PreliminariesOptions): any`
+
+Parse a front matter string without delimiters into a JavaScript object.
+
+### `PreliminariesParser.stringify(data: Object, options?: PreliminariesOptions): string`
+
+Stringify a JavaScript front matter object into string without delimiters.
+
+### `PreliminariesParser.delims?: string | string[]`
+
+The default delimiters for the parser, used to auto-detect the language and parser to use and when `stringify`ing with the `stringifyUseParserDelims` option.
+
+A string (if start and end delimiters are the same), or an array of 2 elements containing the start and end delimiters.

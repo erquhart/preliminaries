@@ -2,16 +2,16 @@ declare module "preliminaries" {
     export interface PreliminariesOptions {
         parser?: PreliminariesParser;
         lang?: string;
-        delims: string | string[];
-        stringifyLang: boolean;
-        stringifyUseParserDelims: boolean;
+        delims?: string | string[];
+        stringifyIncludeLang?: boolean;
+        stringifyUseParserDelims?: boolean;
     }
 
     export interface PreliminariesParser {
         (register: boolean): PreliminariesParser;
         parse(str: string, options?: PreliminariesOptions): any;
         stringify(data: Object, options?: PreliminariesOptions): string;
-        delims: string | string[];
+        delims?: string | string[];
     }
 
     export interface Preliminaries {

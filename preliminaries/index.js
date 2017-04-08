@@ -181,7 +181,7 @@ preliminaries.stringify = function(str, data, options) {
   var lang = opts.lang || 'json';
 
   // Whether to stringify the language or not
-  var slang = typeof opts.stringifyLang !== 'undefined' ? opts.stringifyLang : !opts.delims && !opts.stringifyUseParserDelims;
+  var slang = typeof opts.stringifyIncludeLang !== 'undefined' ? opts.stringifyIncludeLang : !opts.delims && !opts.stringifyUseParserDelims;
 
   var parser = opts.parser || preliminaries.parsers[lang];
   if (parser && typeof parser.stringify === 'function') {
