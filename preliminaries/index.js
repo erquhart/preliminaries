@@ -80,12 +80,16 @@ preliminaries.parse = function(str, options) {
         infer = false;
       }
     }
-
-    if (infer) {
-      var ia = str.substr(0, str.indexOf('\n'));
+    var idlen = str.indexOf('\n');
+    if (infer && idlen > 0) {
+      var ia = str.substr(0, idlen);
       ia = ia.charAt(ia.length - 1) === '\r' ? ia.substr(0, ia.length - 1) : ia;
-      lang = preliminaries.parsersLangByFirstDelim[ia];
-      opts.delims = preliminaries.parsers[lang].delims;
+      ia = ia.trim();
+      if (ia && preliminaries.parsersLangByFirstDelim[ia]) {
+        lang = preliminaries.parsersLangByFirstDelim[ia];
+        opts.delims = preliminaries.parsers[lang].delims;
+        console.log('infer', lang, opts.delims);
+      }
     }
   }
 
@@ -105,7 +109,8 @@ preliminaries.parse = function(str, options) {
   // is a character in the first delim, then just
   // return the default object. it's either a bad
   // delim or not a delimiter at all.
-  if (a.indexOf(str.charAt(alen + 1)) !== -1) {
+  var aftera = str.charAt(alen + 1);
+  if (aftera && a.indexOf(aftera) !== -1) {
     return res;
   }
 

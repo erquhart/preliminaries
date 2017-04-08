@@ -27,7 +27,7 @@ describe('stringify JSON:', function() {
     res.should.equal([
       '---json',
       '{',
-      '"name":"test-name"',
+      '"name":"a long test name"',
       '}',
       '---',
       'Name: {{name}}\n'

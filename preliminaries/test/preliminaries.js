@@ -101,18 +101,30 @@ lineEndings.forEach(function(lineEnding) {
       actual.should.have.property('orig', fixture);
     });
 
+    it.only('should correctly parse a string that is only the open delimiter', function() {
+      var fixture = '{' + lineEnding;
+      var actual = preliminaries.parse(fixture);
+      actual.should.eql({orig: fixture, data: {}, content: ''});
+    });
+
+    it('should correctly parse a string that is only the open delimiter and language', function() {
+      var fixture = '{json' + lineEnding;
+      var actual = preliminaries.parse(fixture);
+      actual.should.eql({orig: fixture, data: {}, content: ''});
+    });
+
+    it('should correctly parse a string without a close delimiter', function() {
+      var fixture = '{' + lineEnding + '"title":"JSON",' + lineEnding + '"description":"A nice story"';
+      var actual = preliminaries.parse(fixture);
+      actual.should.eql({orig: fixture, data: {title: 'JSON', description: 'A nice story'}, content: ''});
+    });
+
     it('should not try to parse a string has content that looks like front matter', function() {
       var fixture = '-----------name--------------value' + lineEnding + 'foo';
       var actual = preliminaries.parse(fixture);
       actual.should.have.property('data', {});
       actual.should.have.property('content', '-----------name--------------value' + lineEnding + 'foo');
       actual.should.have.property('orig', '-----------name--------------value' + lineEnding + 'foo');
-    });
-
-    it('should throw an error when the detected lang does not match the specified lang', function() {
-      (function() {
-        preliminaries.parse(fs.readFileSync('./test/fixtures/autodetect-json.md', 'utf8'), {lang: 'xyz'});
-      }).should.throw('preliminaries detected a different lang: json to the one specified: xyz');
     });
   });
 });
@@ -128,9 +140,27 @@ describe('Preliminaries:', function() {
     preliminaries.unregisterParser('json');
   });
 
+  it('should throw an error when the detected lang does not match the specified lang', function() {
+    (function() {
+      preliminaries.parse(fs.readFileSync('./test/fixtures/autodetect-json.md', 'utf8'), {lang: 'xyz'});
+    }).should.throw('preliminaries detected a different lang: json to the one specified: xyz');
+  });
+
   it('should throw an error when registering a parser for another lang with delims that clash with existing parser', function() {
     (function() {
       preliminaries.registerParser('xyz', preliminaries.jsonParser);
     }).should.throw('preliminaries cannot register the parser because the delimiters clash with an already registered parser for lang: json');
+  });
+
+  it('should return the content for a string that is only the open delimiter', function() {
+    var fixture = '{';
+    var actual = preliminaries.parse(fixture);
+    actual.should.eql({orig: fixture, data: {}, content: fixture});
+  });
+
+  it('should return the content for a string that is only the open delimiter and language', function() {
+    var fixture = '{json';
+    var actual = preliminaries.parse(fixture);
+    actual.should.eql({orig: fixture, data: {}, content: fixture});
   });
 });
