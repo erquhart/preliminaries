@@ -2,9 +2,9 @@
 
 Simple front matter parser for Markdown that supports JSON, YAML, TOML and custom parsers. 
 
-Forked from the excellent [gray-matter](), prelimimaries strips things down and makes the YAML and TOML parsers entirely optional, as well as supporting stringifying languages other than YAML.
+Forked from the excellent [jonschlinkert/gray-matter](https://github.com/jonschlinkert/gray-matter), prelimimaries strips things down and makes the YAML and TOML parsers entirely optional, as well as supporting stringifying languages other than YAML.
 
-Improved parsing and auto-detection of languages supports JSON front matter with `{` and `}` plain delimiters and TOML with `+++` delimiters as used in [Hugo]().
+Improved parsing and auto-detection of languages supports JSON front matter with `{` and `}` plain delimiters and TOML with `+++` delimiters as used in [Hugo](https://gohugo.io).
 
 ## Dependency
 
@@ -153,6 +153,17 @@ name: Joseph
 Content
 ```
 
+Stringify with custom delimiters:
+
+```js
+preliminaries.stringify('Content', {name: 'Joseph'}, {lang: 'yaml', delims: '~~~'})
+// Returns
+~~~
+name: Joseph
+~~~
+Content
+```
+
 ### `Preliminaries.registerParser(lang: string, parser: PreliminariesParser): void`
 
 Register a parser for a new language:
@@ -237,12 +248,28 @@ module.exports = myParser;
 
 Parse a front matter string without delimiters into a JavaScript object.
 
+```
+myParser.parse = function(str, options) {
+  return {};
+}
+```
+
 ### `PreliminariesParser.stringify(data: Object, options?: PreliminariesOptions): string`
 
 Stringify a JavaScript front matter object into string without delimiters.
+
+```
+myParser.stringify = function(data, options) {
+  return '';
+}
+```
 
 ### `PreliminariesParser.delims?: string | string[]`
 
 The default delimiters for the parser, used to auto-detect the language and parser to use and when `stringify`ing with the `stringifyUseParserDelims` option.
 
 A string (if start and end delimiters are the same), or an array of 2 elements containing the start and end delimiters.
+
+```js
+myParser.delims = ['<', '>'];
+```
