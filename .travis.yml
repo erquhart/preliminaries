@@ -4,11 +4,11 @@ os:
   - osx
 language: node_js
 install:
-  - pushd preliminaries && npm install -d; popd
-  - pushd preliminaries-parser-toml && npm install -d; popd
+  - pushd preliminaries && npm install -d && popd
+  - pushd preliminaries-parser-toml && npm install -d && popd
 script: 
-  - pushd preliminaries && npm test; popd
-  - pushd preliminaries-parser-toml && npm test; popd
+  - pushd preliminaries && npm test && popd
+  - pushd preliminaries-parser-toml && npm test && popd
 node_js:
   - node
   - '6'
