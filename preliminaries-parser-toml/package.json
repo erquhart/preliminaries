@@ -1,0 +1,53 @@
+{
+  "name": "preliminaries-parser-toml",
+  "description": "Simple front matter parser that supports YAML, JSON and TOML.",
+  "version": "1.0.0",
+  "homepage": "https://github.com/josephearl/preliminaries",
+  "author": "Joseph Earl (https://github.com/josephearl)",
+  "contributors": [
+    "Joseph Earl (https://github.com/josephearl)",
+    "Jon Schlinkert <jon.schlinkert@sellside.com> (http://twitter.com/jonschlinkert)"
+  ],
+  "repository": "josephearl/preliminaries",
+  "bugs": {
+    "url": "https://github.com/josephearl/preliminaries/issues"
+  },
+  "license": "MIT",
+  "files": [
+    "index.js"
+  ],
+  "main": "index.js",
+  "engines": {
+    "node": ">=0.10.0"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "test": "mocha"
+  },
+  "peerDependencies": {
+    "preliminaries": "^1.0.0"
+  },
+  "dependencies": {
+    "toml": "^2.3.2"
+  },
+  "devDependencies": {
+    "eslint": "^3.19.0",
+    "mocha": "^3.2.0",
+    "should": "^11.2.0"
+  },
+  "keywords": [
+    "front",
+    "matter",
+    "front-matter",
+    "yaml",
+    "markdown",
+    "toml",
+    "json",
+    "documentation",
+    "docs",
+    "parser",
+    "preliminaries",
+    "jekyll",
+    "hugo"
+  ]
+}

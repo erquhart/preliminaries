@@ -10,11 +10,9 @@
 
 var fs = require('fs');
 require('should');
-var preliminaries = require('..');
-function toUTF8Array(str) {
-    return unescape(encodeURIComponent(str))
+var preliminaries = require('preliminaries');
+require("..");
 
-}
 describe('parse TOML:', function () {
   it('should parse toml front matter.', function () {
     var actual = preliminaries('---\ntitle = "TOML"\ndescription = "Front matter"\ncategories = "front matter toml"\n---\n\n# This file has toml front matter!\n', {

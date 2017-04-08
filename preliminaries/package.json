@@ -19,8 +19,7 @@
   "license": "MIT",
   "files": [
     "preliminaries.d.ts",
-    "index.js",
-    "lib"
+    "index.js"
   ],
   "main": "index.js",
   "engines": {
@@ -32,56 +31,28 @@
   },
   "dependencies": {
     "extend-shallow": "^2.0.1",
-    "js-yaml": "^3.8.1",
-    "toml": "^2.3.2"
+    "js-yaml": "^3.8.1"
   },
   "devDependencies": {
-    "ansi-bold": "^0.1.1",
-    "ansi-gray": "^0.1.1",
-    "benchmarked": "^0.2.5",
-    "delimiter-regex": "^2.0.0",
-    "for-own": "^0.1.4",
-    "front-matter": "^2.1.2",
-    "glob": "^7.1.1",
-    "gulp": "^3.9.1",
-    "gulp-eslint": "^3.0.1",
-    "gulp-format-md": "^0.1.11",
-    "gulp-istanbul": "^1.1.1",
-    "gulp-mocha": "^4.0.1",
+    "eslint": "^3.19.0",
     "lodash": "^4.17.4",
-    "minimist": "^1.2.0",
-    "should": "^11.2.0",
-    "sort-object": "^3.0.2"
+    "mocha": "^3.2.0",
+    "should": "^11.2.0"
   },
   "keywords": [
-    "assemble",
-    "data",
-    "docs",
-    "documentation",
-    "extract",
-    "extracting",
     "front",
-    "front-matter",
-    "frontmatter",
-    "generate",
-    "generator",
-    "gh-pages",
-    "gray",
-    "javascript",
-    "jekyll",
-    "js",
-    "JSON",
-    "markdown",
     "matter",
-    "parse",
-    "parser",
-    "parsing",
-    "site",
-    "static",
-    "template",
-    "toml",
+    "front-matter",
     "yaml",
-    "yfm"
+    "markdown",
+    "toml",
+    "json",
+    "documentation",
+    "docs",
+    "parser",
+    "preliminaries",
+    "jekyll",
+    "hugo"
   ],
   "typings": "preliminaries.d.ts"
 }

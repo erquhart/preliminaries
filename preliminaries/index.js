@@ -10,7 +10,6 @@
 
 var extend = require('extend-shallow');
 var YAML = require('js-yaml');
-var TOML = require('toml');
 
 /**
  * Expose `preliminaries()`
@@ -164,27 +163,6 @@ preliminaries.parsers.json = function(str, options) {
   } catch (err) {
     if (opts.strict) {
       throw new SyntaxError(msg('JSON', err));
-    } else {
-      return {};
-    }
-  }
-};
-
-/**
- * Parse TOML front matter.
- *
- * @param  {String} `str` The string to parse.
- * @param  {Object} `options` Options to pass to [toml-node].
- * @return {Object} Parsed object of data.
- * @api public
- */
-
-preliminaries.parsers.toml = function(str, opts) {
-  try {
-    return TOML.parse(str);
-  } catch (err) {
-    if (opts.strict) {
-      throw new SyntaxError(msg('TOML', err));
     } else {
       return {};
     }
