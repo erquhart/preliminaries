@@ -8,7 +8,6 @@
 
 'use strict';
 
-var fs = require('fs');
 require('should');
 
 describe('Preliminaries.registerParser:', function() {

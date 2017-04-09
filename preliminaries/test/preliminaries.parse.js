@@ -139,7 +139,7 @@ lineEndings.forEach(function(lineEnding) {
       parser.parse = function(str, options) {
         actualLang = options.lang;
         return str;
-      }
+      };
       preliminaries.registerParser('abc', parser);
       var fixture = '---abc' + lineEnding + '"name":"troublesome --- value"' + lineEnding + '---' + lineEnding + 'here is some content' + lineEnding;
       preliminaries.parse(fixture);
@@ -153,7 +153,7 @@ lineEndings.forEach(function(lineEnding) {
       parser.parse = function(str, options) {
         actualLang = options.lang;
         return str;
-      }
+      };
       preliminaries.registerParser('xoy', parser);
       var fixture = '>>>' + lineEnding + '{' + lineEnding + '"name":"troublesome --- value"' + lineEnding + '}' + lineEnding + '<<<' + lineEnding + 'here is some content' + lineEnding;
       preliminaries.parse(fixture);
