@@ -130,10 +130,10 @@ preliminaries.parse = function(str, options) {
   // Check languages match
   if (!opts.parser && detected) {
     if (opts.lang && detected !== opts.lang) {
-      throw new Error('preliminaries detected a different lang: ' + detected + ' to the one specified: ' + opts.lang);
+      throw new Error('preliminaries detected a different language: ' + detected + ' to the one specified: ' + opts.lang);
     }
     if (inferred && detected !== inferred) {
-      throw new Error('preliminaries detected a different lang: ' + detected + ' to the one inferred: ' + inferred);
+      throw new Error('preliminaries detected a different language: ' + detected + ' to the one inferred: ' + inferred);
     }
   }
 
@@ -221,12 +221,12 @@ preliminaries.registerParser = function(lang, parser) {
     throw new Error('preliminaries expects a language string');
   }
   if (preliminaries.parsers[lang]) {
-    preliminaries.unregisterParser(lang);
+    throw new Error('preliminaries cannot register the parser because a parser is already registered for language: xyz');
   }
   if (parser.delims) {
     var a = arrayify(parser.delims)[0];
-    if (preliminaries.parsersLangByFirstDelim[a] && preliminaries.parsersLangByFirstDelim[a] !== lang) {
-      throw new Error('preliminaries cannot register the parser because the delimiters clash with an already registered parser for lang: ' + preliminaries.parsersLangByFirstDelim[a]);
+    if (preliminaries.parsersLangByFirstDelim[a]) {
+      throw new Error('preliminaries cannot register the parser because the delimiters clash with an already registered parser for language: ' + preliminaries.parsersLangByFirstDelim[a]);
     }
     preliminaries.parsersLangByFirstDelim[a] = lang;
   }
