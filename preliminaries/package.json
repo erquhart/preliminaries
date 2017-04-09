@@ -1,7 +1,7 @@
 {
   "name": "preliminaries",
   "description": "Simple front matter parser that supports YAML, JSON and TOML.",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "homepage": "https://github.com/josephearl/preliminaries",
   "author": "Joseph Earl (https://github.com/josephearl)",
   "contributors": [
@@ -30,7 +30,6 @@
     "test": "mocha"
   },
   "dependencies": {
-    "extend-shallow": "^2.0.1"
   },
   "devDependencies": {
     "eslint": "^3.19.0",
