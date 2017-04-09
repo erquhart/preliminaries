@@ -13,7 +13,7 @@ require('should');
 
 var lineEndings = ['\n', '\r\n'];
 lineEndings.forEach(function(lineEnding) {
-  describe('Read from strings with lineEnding ' + lineEnding.replace('\n', '\\n').replace('\r', '\\r') + ':', function() {
+  describe('Preliminaries.parse read from strings with lineEnding ' + lineEnding.replace('\n', '\\n').replace('\r', '\\r') + ':', function() {
     var preliminaries;
   
     before(function() {
@@ -101,7 +101,7 @@ lineEndings.forEach(function(lineEnding) {
       actual.should.have.property('orig', fixture);
     });
 
-    it.only('should correctly parse a string that is only the open delimiter', function() {
+    it('should correctly parse a string that is only the open delimiter', function() {
       var fixture = '{' + lineEnding;
       var actual = preliminaries.parse(fixture);
       actual.should.eql({orig: fixture, data: {}, content: ''});
@@ -110,7 +110,7 @@ lineEndings.forEach(function(lineEnding) {
     it('should correctly parse a string that is only the open delimiter and language', function() {
       var fixture = '{json' + lineEnding;
       var actual = preliminaries.parse(fixture);
-      actual.should.eql({orig: fixture, data: {}, content: ''});
+      actual.should.eql({orig: fixture, data: {}, content: fixture});
     });
 
     it('should correctly parse a string without a close delimiter', function() {
@@ -126,10 +126,38 @@ lineEndings.forEach(function(lineEnding) {
       actual.should.have.property('content', '-----------name--------------value' + lineEnding + 'foo');
       actual.should.have.property('orig', '-----------name--------------value' + lineEnding + 'foo');
     });
+
+    it('should pass on detected language to parser', function() {
+      var actualLang;
+      var parser = {};
+      parser.delims = ['{', '}'];
+      parser.parse = function(str, options) {
+        actualLang = options.lang;
+        return str;
+      }
+      preliminaries.registerParser('json', parser);
+      var fixture = '---json' + lineEnding + '{' + lineEnding + '"name":"troublesome --- value"' + lineEnding + '}' + lineEnding + '---' + lineEnding + 'here is some content' + lineEnding;
+      preliminaries.parse(fixture);
+      actualLang.should.equal('json');
+    });
+
+    it('should pass on inferred language to parser', function() {
+      var actualLang;
+      var parser = {};
+      parser.delims = ['>>>', '<<<'];
+      parser.parse = function(str, options) {
+        actualLang = options.lang;
+        return str;
+      }
+      preliminaries.registerParser('xoy', parser);
+      var fixture = '>>>' + lineEnding + '{' + lineEnding + '"name":"troublesome --- value"' + lineEnding + '}' + lineEnding + '<<<' + lineEnding + 'here is some content' + lineEnding;
+      preliminaries.parse(fixture);
+      actualLang.should.equal('xoy');
+    });
   });
 });
 
-describe('Preliminaries:', function() {
+describe('Preliminaries.parse:', function() {
   var preliminaries;
   
   before(function() {

@@ -70,6 +70,7 @@ preliminaries.parse = function(str, options) {
 
   // If no delimiters are set and if no parser and no language is defined,
   // try to infer the language by matching the first delimiter with parsers
+  var inferred = null;
   if (!opts.delims && !opts.parser && !opts.lang) {
     var infer = true;
     // don't infer if the document has a language in the front matter like `---yaml`
@@ -85,7 +86,7 @@ preliminaries.parse = function(str, options) {
       var ia = str.substr(0, idlen);
       ia = ia.charAt(ia.length - 1) === '\r' ? ia.substr(0, ia.length - 1) : ia;
       ia = ia.trim();
-      var inferred = preliminaries.parsersLangByFirstDelim[ia];
+      inferred = preliminaries.parsersLangByFirstDelim[ia];
       if (ia && inferred) {
         lang = inferred;
         opts.delims = preliminaries.parsers[lang].delims;
@@ -129,7 +130,10 @@ preliminaries.parse = function(str, options) {
   if (!opts.parser && opts.lang && detected && detected !== opts.lang) {
     throw new Error('preliminaries detected a different lang: ' + detected + ' to the one specified: ' + opts.lang);
   }
-  lang = detected || lang;
+  if (!opts.parser && inferred && detected && detected !== inferred) {
+    throw new Error('preliminaries detected a different lang: ' + detected + ' to the one inferred: ' + inferred);
+  }
+  lang = opts.lang = detected || lang;
 
   // Get the front matter (data) string
   var data = str.slice(start, end).trim();
