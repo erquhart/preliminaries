@@ -10,7 +10,7 @@
 
 require('should');
 
-describe('Read from strings:', function() {
+describe('Test strings:', function() {
   var preliminaries;
   
   before(function() {
@@ -23,8 +23,24 @@ describe('Read from strings:', function() {
 
   it('should return `true` if the string has front matter', function() {
     preliminaries.test('---\nabc: xyz\n---').should.be.true;
-    preliminaries.test('---\nabc: xyz\n---', {delims: '~~~'}).should.be.false;
+    preliminaries.test('---yaml\nabc: xyz\n---').should.be.true;
+    preliminaries.test('---yaml\nabc: xyz\n---', {delims: '---'}).should.be.true;
+    preliminaries.test('{\n"abc": "xyz"\n}').should.be.true;
+    preliminaries.test('---json\n{\n"abc": "xyz"\n}\n---').should.be.true;
+    preliminaries.test('+++\nabc = "xyz"\n+++').should.be.true;
+    preliminaries.test('~~~\nabc = "xyz"\n~~~').should.be.true;
+    preliminaries.test('---toml\nabc = "xyz"\n---').should.be.true;
     preliminaries.test('~~~\nabc: xyz\n~~~', {delims: '~~~'}).should.be.true;
+  });
+
+  it('should return `false` if the string does not have valid front matter', function() {
+    preliminaries.test('---\nabc: xyz\n---', {delims: '~~~'}).should.be.false;
     preliminaries.test('\nabc: xyz\n---').should.be.false;
+    preliminaries.test('\n"abc": "xyz"\n}').should.be.false;
+    preliminaries.test('\n"abc": "xyz"\n}\n---').should.be.false;
+    preliminaries.test('\nabc = "xyz"\n+++').should.be.false;
+    preliminaries.test('\nabc = "xyz"\n+++').should.be.false;
+    preliminaries.test('\nabc: xyz\n}', {delims: '}'}).should.be.false;
+    preliminaries.test('\nabc: xyz\n~~~', {delims: '~~~'}).should.be.false;
   });
 });

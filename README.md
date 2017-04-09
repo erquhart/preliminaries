@@ -164,6 +164,25 @@ name: Joseph
 Content
 ```
 
+### `Preliminaries.test(str: string, options?: PreliminariesOptions): boolean`
+
+Test whether a string contains front matter of any kind:
+
+```
+preliminaries.test('{\n"abc": "xyz"\n}');
+preliminaries.test('---\nabc: xyz\n---');
+preliminaries.test('+++\nabc = "xyz"\n+++');
+preliminaries.test('~~~\nabc = "xyz"\n~~~');
+// All return true
+```
+
+or front matter with particular delimiters:
+
+```
+preliminaries.test('---\nabc: xyz\n---', {delims: '~~~'});
+// Returns false
+```
+
 ### `Preliminaries.registerParser(lang: string, parser: PreliminariesParser): void`
 
 Register a parser for a new language:
