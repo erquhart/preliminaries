@@ -61,8 +61,7 @@ preliminaries.parse('{\n"name":"Joseph"\n}\nContent')
 // Returns
 {
   data: {name: 'Joseph'},
-  content: 'Content',
-  orig: '{\n"name":"Joseph"\n}\nContent',
+  content: 'Content'
 }
 ```
 
@@ -73,8 +72,7 @@ preliminaries.parse('---\nname: Joseph\n---\nContent')
 // Returns
 {
   data: {name: 'Joseph'},
-  content: 'Content',
-  orig: '---\nname: Joseph\n---\nContent',
+  content: 'Content'
 }
 ```
 
@@ -85,8 +83,7 @@ preliminaries.parse('+++\nname = "Joseph"\n+++\nContent')
 // Returns
 {
   data: {name: 'Joseph'},
-  content: 'Content',
-  orig: '+++\nname = "Joseph"\n+++\nContent',
+  content: 'Content'
 }
 ```
 
@@ -99,8 +96,7 @@ preliminaries.parse('~~~\nname: Joseph\n~~~\nContent', {lang: 'yaml', delims: '~
 // Returns
 {
   data: {name: 'Joseph'},
-  content: 'Content',
-  orig: '~~~\nname: Joseph\n~~~\nContent',
+  content: 'Content'
 }
 ```
 
@@ -111,8 +107,7 @@ preliminaries.parse('~~~\n{\n"name":"Joseph"\n}\n~~~\nContent', {lang: 'json', d
 // Returns
 {
   data: {name: 'Joseph'},
-  content: 'Content',
-  orig: '~~~\n{\n"name":"Joseph"\n}\n~~~\nContent',
+  content: 'Content'
 }
 ```
 
@@ -210,8 +205,7 @@ preliminaries.parse('---xyz\n{\n"name":"Joseph"\n}\n---\nContent')
 // Returns
 {
   data: {name: 'Joseph'},
-  content: 'Content',
-  orig: '---xyz\n{\n"name":"Joseph"\n}\n---\nContent',
+  content: 'Content'
 }
 ```
 

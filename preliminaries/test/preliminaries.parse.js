@@ -34,7 +34,6 @@ lineEndings.forEach(function(lineEnding) {
       var actual = preliminaries.parse(fixture, { delims: '---' });
       actual.should.have.property('data');
       actual.should.have.property('content');
-      actual.should.have.property('orig');
       actual.data.should.have.property('abc');
       actual.data.abc.should.equal('xyz');
     });
@@ -44,7 +43,6 @@ lineEndings.forEach(function(lineEnding) {
       var actual = preliminaries.parse(fixture);
       actual.should.have.property('data');
       actual.should.have.property('content');
-      actual.should.have.property('orig');
       actual.data.should.have.property('abc');
       actual.data.abc.should.equal('xyz');
     });
@@ -63,7 +61,7 @@ lineEndings.forEach(function(lineEnding) {
     });
 
     it('should return an object when the string is 0 length', function() {
-      preliminaries.parse('').should.eql({orig: '', data: {}, content: ''});
+      preliminaries.parse('').should.eql({data: {}, content: ''});
     });
 
     it('should extract JSON front matter and content', function() {
@@ -71,7 +69,6 @@ lineEndings.forEach(function(lineEnding) {
       var actual = preliminaries.parse(fixture, { delims: '---' });
       actual.should.have.property('data', {abc: 'xyz', version: 2});
       actual.should.have.property('content', '\n<span class="alert alert-info">This is an alert</span>\n');
-      actual.should.have.property('orig');
     });
 
     it('should use a custom delimiter as a string', function() {
@@ -79,7 +76,6 @@ lineEndings.forEach(function(lineEnding) {
       var actual = preliminaries.parse(fixture, {delims: '~~~'});
       actual.should.have.property('data', {abc: 'xyz', version: 2});
       actual.should.have.property('content', '\n<span class="alert alert-info">This is an alert</span>\n');
-      actual.should.have.property('orig');
     });
 
     it('should use custom delimiters as an array', function() {
@@ -87,7 +83,6 @@ lineEndings.forEach(function(lineEnding) {
       var actual = preliminaries.parse(fixture, {delims: ['~~~']});
       actual.should.have.property('data', {abc: 'xyz', version: 2});
       actual.should.have.property('content', '' + lineEnding + '<span class="alert alert-info">This is an alert</span>' + lineEnding);
-      actual.should.have.property('orig');
     });
 
     it('should correctly identify delimiters and ignore strings that look like delimiters', function() {
@@ -95,7 +90,6 @@ lineEndings.forEach(function(lineEnding) {
       var actual = preliminaries.parse(fixture, {delims: '---'});
       actual.should.have.property('data', {name: 'troublesome --- value'});
       actual.should.have.property('content', 'here is some content' + lineEnding);
-      actual.should.have.property('orig', fixture);
     });
 
     it('should correctly parse a string that only has an opening delimiter', function() {
@@ -103,25 +97,24 @@ lineEndings.forEach(function(lineEnding) {
       var actual = preliminaries.parse(fixture, {delims: '---'});
       actual.should.have.property('data', {name: 'troublesome --- value'});
       actual.should.have.property('content', '');
-      actual.should.have.property('orig', fixture);
     });
 
     it('should correctly parse a string that is only the open delimiter', function() {
       var fixture = '{' + lineEnding;
       var actual = preliminaries.parse(fixture);
-      actual.should.eql({orig: fixture, data: {}, content: ''});
+      actual.should.eql({data: {}, content: ''});
     });
 
     it('should correctly parse a string that is only the open delimiter and language', function() {
       var fixture = '{json' + lineEnding;
       var actual = preliminaries.parse(fixture);
-      actual.should.eql({orig: fixture, data: {}, content: fixture});
+      actual.should.eql({data: {}, content: fixture});
     });
 
     it('should correctly parse a string without a close delimiter', function() {
       var fixture = '{' + lineEnding + '"title":"JSON",' + lineEnding + '"description":"A nice story"';
       var actual = preliminaries.parse(fixture);
-      actual.should.eql({orig: fixture, data: {title: 'JSON', description: 'A nice story'}, content: ''});
+      actual.should.eql({data: {title: 'JSON', description: 'A nice story'}, content: ''});
     });
 
     it('should not try to parse a string has content that looks like front matter', function() {
@@ -129,7 +122,6 @@ lineEndings.forEach(function(lineEnding) {
       var actual = preliminaries.parse(fixture);
       actual.should.have.property('data', {});
       actual.should.have.property('content', '-----------name--------------value' + lineEnding + 'foo');
-      actual.should.have.property('orig', '-----------name--------------value' + lineEnding + 'foo');
     });
 
     it('should pass on detected language to parser', function() {
@@ -192,12 +184,12 @@ describe('Preliminaries.parse:', function() {
   it('should return the content for a string that is only the open delimiter', function() {
     var fixture = '{';
     var actual = preliminaries.parse(fixture);
-    actual.should.eql({orig: fixture, data: {}, content: fixture});
+    actual.should.eql({data: {}, content: fixture});
   });
 
   it('should return the content for a string that is only the open delimiter and language', function() {
     var fixture = '{json';
     var actual = preliminaries.parse(fixture);
-    actual.should.eql({orig: fixture, data: {}, content: fixture});
+    actual.should.eql({data: {}, content: fixture});
   });
 });

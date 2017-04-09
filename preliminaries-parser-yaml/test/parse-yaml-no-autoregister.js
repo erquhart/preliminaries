@@ -26,6 +26,5 @@ describe('parse YAML no auto register:', function() {
     actual.data.title.should.equal('YAML here');
     actual.should.have.property('data');
     actual.should.have.property('content');
-    actual.should.have.property('orig');
   });
 });

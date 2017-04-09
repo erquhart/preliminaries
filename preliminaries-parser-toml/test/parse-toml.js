@@ -31,7 +31,6 @@ describe('parse TOML:', function() {
     actual.data.categories.join(',').should.equal('front,matter,toml');
     actual.should.have.property('data');
     actual.should.have.property('content');
-    actual.should.have.property('orig');
   });
 
   it('should export a TOML parser', function() {
@@ -40,7 +39,6 @@ describe('parse TOML:', function() {
     actual.data.title.should.equal('TOML');
     actual.should.have.property('data');
     actual.should.have.property('content');
-    actual.should.have.property('orig');
   });
 
   it('should auto-detect TOML as the language with no language defined after the first fence', function() {
@@ -48,7 +46,6 @@ describe('parse TOML:', function() {
     actual.data.title.should.equal('autodetect-no-lang');
     actual.should.have.property('data');
     actual.should.have.property('content');
-    actual.should.have.property('orig');
   });
 
   it('should auto-detect TOML as the language', function() {
@@ -56,20 +53,12 @@ describe('parse TOML:', function() {
     actual.data.title.should.equal('autodetect-TOML');
     actual.should.have.property('data');
     actual.should.have.property('content');
-    actual.should.have.property('orig');
   });
 
-  it('should NOT throw on TOML syntax errors when `strict` is NOT defined', function() {
-    (function() {
-      var fixture = '---toml\n[props\nuser = "jonschlinkert"\n---\nContent\n';
-      preliminaries.parse(fixture, {lang: 'toml'});
-    }).should.not.throw();
-  });
-
-  it('should throw on TOML syntax errors when `strict` IS defined', function() {
+  it('should throw on TOML syntax errors', function() {
     (function() {
       var fixture = '---toml\n[group]\nkey=1\n\n[group.key]\nval=2\n\n---\nContent\n';
-      preliminaries.parse(fixture, {lang: 'toml', strict: true});
+      preliminaries.parse(fixture, {lang: 'toml'});
     }).should.throw('preliminaries parser [TOML]: Error: Cannot redefine existing key \'group,key\'.');
   });
 });

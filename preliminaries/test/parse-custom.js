@@ -40,6 +40,5 @@ describe('Custom parser:', function() {
     actual.data.title.should.equal('YAML');
     actual.should.have.property('data');
     actual.should.have.property('content');
-    actual.should.have.property('orig');
   });
 });

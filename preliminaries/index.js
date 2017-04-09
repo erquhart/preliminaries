@@ -36,7 +36,7 @@ preliminaries.parsersLangByFirstDelim = [];
  *
  * ```js
  * preliminaries.parse('---\ntitle: foo\n---\nbar');
- * //=> {data: {title: 'foo'}, content: 'bar', orig: '---\ntitle: foo\n---\nbar'}
+ * //=> {data: {title: 'foo'}, content: 'bar'}
  * ```
  *
  * @param {String} `string` The string to parse.
@@ -53,7 +53,7 @@ preliminaries.parse = function(str, options) {
   var opts = options || {};
 
   // Default results to build up
-  var res = {orig: str, data: {}, content: str};
+  var res = {data: {}, content: str};
   if (str === '') {
     return res;
   }
@@ -278,8 +278,8 @@ jsonParser.delims = ['{', '}'];
  */
 
 jsonParser.parse = function(str, options) {
-  var opts = Object.assign({strict: false}, options);
-  var delims = arrayify(opts && opts.delims || '---');
+  var opts = options || {};
+  var delims = arrayify(opts.delims || '---');
   try {
     var standard = delims.length === 2 && delims[0] === '{' && delims[1] === '}';
     var inp = standard ? '{' : '';
@@ -287,11 +287,7 @@ jsonParser.parse = function(str, options) {
     inp += standard ? '}' : '';
     return JSON.parse(inp);
   } catch (err) {
-    if (opts.strict) {
-      throw new SyntaxError(msg('JSON', err));
-    } else {
-      return {};
-    }
+    throw new SyntaxError(msg('JSON', err));
   }
 };
 

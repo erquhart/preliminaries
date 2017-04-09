@@ -25,6 +25,5 @@ describe('parse JSON no auto register:', function() {
     actual.data.title.should.equal('JSON');
     actual.should.have.property('data');
     actual.should.have.property('content');
-    actual.should.have.property('orig');
   });
 });

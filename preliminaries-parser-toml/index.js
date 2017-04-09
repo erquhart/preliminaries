@@ -35,15 +35,10 @@ tomlParser.delims = '+++';
  */
 
 tomlParser.parse = function(str, options) {
-  var opts = Object.assign({strict: false}, options);
   try {
     return TOML.parse(str);
   } catch (err) {
-    if (opts.strict) {
-      throw new SyntaxError(msg('TOML', err));
-    } else {
-      return {};
-    }
+    throw new SyntaxError(msg('TOML', err));
   }
 };
 

@@ -30,7 +30,6 @@ describe('parse JSON:', function() {
     actual.data.title.should.equal('JSON');
     actual.should.have.property('data');
     actual.should.have.property('content');
-    actual.should.have.property('orig');
   });
 
   it('should parse JSON front matter with default JSON delimiters', function() {
@@ -42,7 +41,6 @@ describe('parse JSON:', function() {
     actual.data.title.should.equal('JSON');
     actual.should.have.property('data');
     actual.should.have.property('content');
-    actual.should.have.property('orig');
   });
 
   it('should parse JSON front matter with custom delimiters', function() {
@@ -54,7 +52,6 @@ describe('parse JSON:', function() {
     actual.data.title.should.equal('JSON');
     actual.should.have.property('data');
     actual.should.have.property('content');
-    actual.should.have.property('orig');
   });
 
   it('should auto-detect JSON as the language with no language defined after the first fence', function() {
@@ -62,14 +59,12 @@ describe('parse JSON:', function() {
     actual.data.title.should.equal('autodetect-no-lang');
     actual.should.have.property('data');
     actual.should.have.property('content');
-    actual.should.have.property('orig');
   });
 
   it('should auto-detect JSON as the language', function() {
     var actual = preliminaries.parse(fs.readFileSync('./test/fixtures/autodetect-json.md', 'utf8'));
     actual.data.title.should.equal('autodetect-JSON');
     actual.should.have.property('content');
-    actual.should.have.property('orig');
   });
 
   it('should export a JSON parser', function() {
@@ -78,6 +73,12 @@ describe('parse JSON:', function() {
     actual.data.title.should.equal('JSON');
     actual.should.have.property('data');
     actual.should.have.property('content');
-    actual.should.have.property('orig');
+  });
+
+  it('should throw on JSON syntax errors', function() {
+    (function() {
+      var fixture = '{\n"title:""Bad key"\n}\nContent\n';
+      preliminaries.parse(fixture);
+    }).should.throw('preliminaries parser [JSON]: SyntaxError: Unexpected string in JSON at position 9');
   });
 });
