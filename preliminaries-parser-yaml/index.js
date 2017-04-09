@@ -33,15 +33,10 @@ yamlParser.delims = '---';
  */
 
 yamlParser.parse = function(str, options) {
-  var opts = Object.assign({strict: false}, options);
   try {
     return YAML.safeLoad(str, options);
   } catch (err) {
-    if (opts.strict) {
-      throw new SyntaxError(msg('js-yaml', err));
-    } else {
-      return {};
-    }
+    throw new SyntaxError(msg('js-yaml', err));
   }
 };
 

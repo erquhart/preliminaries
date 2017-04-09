@@ -59,17 +59,10 @@ describe('parse TOML:', function() {
     actual.should.have.property('orig');
   });
 
-  it('should NOT throw on TOML syntax errors when `strict` is NOT defined', function() {
-    (function() {
-      var fixture = '---toml\n[props\nuser = "jonschlinkert"\n---\nContent\n';
-      preliminaries.parse(fixture, {lang: 'toml'});
-    }).should.not.throw();
-  });
-
-  it('should throw on TOML syntax errors when `strict` IS defined', function() {
+  it('should throw on TOML syntax errors', function() {
     (function() {
       var fixture = '---toml\n[group]\nkey=1\n\n[group.key]\nval=2\n\n---\nContent\n';
-      preliminaries.parse(fixture, {lang: 'toml', strict: true});
+      preliminaries.parse(fixture, {lang: 'toml'});
     }).should.throw('preliminaries parser [TOML]: Error: Cannot redefine existing key \'group,key\'.');
   });
 });

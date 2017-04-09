@@ -278,8 +278,8 @@ jsonParser.delims = ['{', '}'];
  */
 
 jsonParser.parse = function(str, options) {
-  var opts = Object.assign({strict: false}, options);
-  var delims = arrayify(opts && opts.delims || '---');
+  var opts = options || {};
+  var delims = arrayify(opts.delims || '---');
   try {
     var standard = delims.length === 2 && delims[0] === '{' && delims[1] === '}';
     var inp = standard ? '{' : '';
@@ -287,11 +287,7 @@ jsonParser.parse = function(str, options) {
     inp += standard ? '}' : '';
     return JSON.parse(inp);
   } catch (err) {
-    if (opts.strict) {
-      throw new SyntaxError(msg('JSON', err));
-    } else {
-      return {};
-    }
+    throw new SyntaxError(msg('JSON', err));
   }
 };
 

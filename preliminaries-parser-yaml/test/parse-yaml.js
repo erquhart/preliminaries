@@ -56,4 +56,11 @@ describe('parse YAML:', function() {
     actual.should.have.property('content');
     actual.should.have.property('orig');
   });
+
+  it('should throw on YAML syntax errors', function() {
+    (function() {
+      var fixture = '---\nbad\nkey: value\n---\nContent\n';
+      preliminaries.parse(fixture);
+    }).should.throw('preliminaries parser [js-yaml]: YAMLException: end of the stream or a document separator is expected at line 2, column 4:\n    key: value\n       ^');
+  });
 });

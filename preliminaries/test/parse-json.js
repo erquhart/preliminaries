@@ -80,4 +80,11 @@ describe('parse JSON:', function() {
     actual.should.have.property('content');
     actual.should.have.property('orig');
   });
+
+  it('should throw on JSON syntax errors', function() {
+    (function() {
+      var fixture = '{\n"title:""Bad key"\n}\nContent\n';
+      preliminaries.parse(fixture);
+    }).should.throw('preliminaries parser [JSON]: SyntaxError: Unexpected string in JSON at position 9');
+  });
 });
