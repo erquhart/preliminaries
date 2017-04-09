@@ -53,5 +53,6 @@
     "jekyll",
     "hugo"
   ],
+  "readme": "../README.md",
   "typings": "preliminaries.d.ts"
 }

@@ -51,5 +51,6 @@
     "preliminaries",
     "jekyll",
     "hugo"
-  ]
+  ],
+  "readme": "../README.md"
 }
