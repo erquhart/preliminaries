@@ -8,8 +8,6 @@
 
 'use strict';
 
-var extend = require('extend-shallow');
-
 var preliminaries = function(register) {
   if (register) {
     preliminaries.registerParser('json', jsonParser);
@@ -280,7 +278,7 @@ jsonParser.delims = ['{', '}'];
  */
 
 jsonParser.parse = function(str, options) {
-  var opts = extend({strict: false}, options);
+  var opts = Object.assign({strict: false}, options);
   var delims = arrayify(opts && opts.delims || '---');
   try {
     var standard = delims.length === 2 && delims[0] === '{' && delims[1] === '}';

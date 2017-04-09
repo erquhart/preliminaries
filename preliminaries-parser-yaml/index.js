@@ -8,7 +8,6 @@
 
 'use strict';
 
-var extend = require('extend-shallow');
 var YAML = require('js-yaml');
 
 var yamlParser = function(register) {
@@ -34,7 +33,7 @@ yamlParser.delims = '---';
  */
 
 yamlParser.parse = function(str, options) {
-  var opts = extend({strict: false}, options);
+  var opts = Object.assign({strict: false}, options);
   try {
     return YAML.safeLoad(str, options);
   } catch (err) {
