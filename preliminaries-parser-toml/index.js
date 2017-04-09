@@ -8,6 +8,7 @@
 
 'use strict';
 
+var extend = require('extend-shallow');
 var TOML = require('toml');
 var tomljs = require('toml-js');
 TOML.stringify = tomljs.dump;
@@ -34,7 +35,8 @@ tomlParser.delims = '+++';
  * @api public
  */
 
-tomlParser.parse = function(str, opts) {
+tomlParser.parse = function(str, options) {
+  var opts = extend({strict: false}, options);
   try {
     return TOML.parse(str);
   } catch (err) {

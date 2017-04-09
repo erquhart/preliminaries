@@ -28,6 +28,7 @@
     "preliminaries": "^1.0.0"
   },
   "dependencies": {
+    "extend-shallow": "^2.0.1",
     "toml": "^2.3.2",
     "toml-js": "0.0.8"
   },
