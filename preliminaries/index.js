@@ -127,12 +127,16 @@ preliminaries.parse = function(str, options) {
   // Measure the lang before trimming whitespace
   var start = alen + detected.length;
   detected = detected.trim();
-  if (!opts.parser && opts.lang && detected && detected !== opts.lang) {
-    throw new Error('preliminaries detected a different lang: ' + detected + ' to the one specified: ' + opts.lang);
+  // Check languages match
+  if (!opts.parser && detected) {
+    if (opts.lang && detected !== opts.lang) {
+      throw new Error('preliminaries detected a different lang: ' + detected + ' to the one specified: ' + opts.lang);
+    }
+    if (inferred && detected !== inferred) {
+      throw new Error('preliminaries detected a different lang: ' + detected + ' to the one inferred: ' + inferred);
+    }
   }
-  if (!opts.parser && inferred && detected && detected !== inferred) {
-    throw new Error('preliminaries detected a different lang: ' + detected + ' to the one inferred: ' + inferred);
-  }
+
   lang = opts.lang = detected || lang;
 
   // Get the front matter (data) string
