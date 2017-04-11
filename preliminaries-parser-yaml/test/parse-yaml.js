@@ -20,7 +20,7 @@ describe('parse YAML:', function() {
   });
 
   after(function() {
-    preliminaries.unregisterParser('yaml');
+    preliminaries.unregister('yaml');
   });
 
   it('should parse YAML front matter', function() {

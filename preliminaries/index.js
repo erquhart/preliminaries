@@ -10,7 +10,7 @@
 
 var preliminaries = function(register) {
   if (register) {
-    preliminaries.registerParser('json', jsonParser);
+    preliminaries.register('json', jsonParser);
   }
   return preliminaries;
 };
@@ -214,21 +214,36 @@ preliminaries.stringify = function(str, data, options) {
  * @param  {Object} `parser` The parser.
  */
 
-preliminaries.registerParser = function(lang, parser) {
+preliminaries.register = function(lang, parser) {
+  if (Array.isArray(lang)) {
+    lang.forEach(function(l) { 
+      if (Array.isArray(l)) {
+        throw new Error('preliminaries does not currently handle nested arrays');
+      }
+      preliminaries.register(l, parser); 
+    });
+    return;
+  }
   if (typeof lang !== 'string') {
     throw new Error('preliminaries expects a language string');
   }
   if (preliminaries.parsers[lang]) {
-    throw new Error('preliminaries cannot register the parser because a parser is already registered for language: xyz');
+    throw new Error('preliminaries cannot register the parser because a parser is already registered for language: ' + lang);
   }
   if (parser.delims) {
     var a = arrayify(parser.delims)[0];
-    if (preliminaries.parsersLangByFirstDelim[a]) {
+    var alang = preliminaries.parsersLangByFirstDelim[a];
+    if (alang && preliminaries.parsers[alang] !== parser) {
       throw new Error('preliminaries cannot register the parser because the delimiters clash with an already registered parser for language: ' + preliminaries.parsersLangByFirstDelim[a]);
     }
     preliminaries.parsersLangByFirstDelim[a] = lang;
   }
   preliminaries.parsers[lang] = parser;
+};
+
+// Deprecated, remove in 1.3.0
+preliminaries.registerParser = function(lang, parser) {
+  return preliminaries.register(lang, parser);
 };
 
 /**
@@ -237,7 +252,16 @@ preliminaries.registerParser = function(lang, parser) {
  * @param  {String} `lang` The language to unregister the parser from.
  */
 
-preliminaries.unregisterParser = function(lang) {
+preliminaries.unregister = function(lang) {
+  if (Array.isArray(lang)) {
+    lang.forEach(function(l) { 
+      if (Array.isArray(l)) {
+        throw new Error('preliminaries does not currently handle nested arrays');
+      }
+      preliminaries.unregister(l, parser); 
+    });
+    return;
+  }
   if (typeof lang !== 'string') {
     throw new Error('preliminaries expects a language string');
   }
@@ -248,6 +272,71 @@ preliminaries.unregisterParser = function(lang) {
       delete preliminaries.parsersLangByFirstDelim[arrayify(parser.delims)[0]];
     }
   }
+};
+
+// Deprecated, remove in 1.3.0
+preliminaries.unregisterParser = function(lang) {
+  return preliminaries.unregister(lang);
+};
+
+/**
+ * Check if a parser is registerable for the language, or all of the languages if an array is given.
+ *
+ * @param  {String} `lang` The language to check if a parser is registerable for.
+ */
+
+preliminaries.registerable = function(lang, parser) {
+  if (Array.isArray(lang)) {
+    var all = true;
+    lang.forEach(function(l) { 
+      if (Array.isArray(l)) {
+        throw new Error('preliminaries does not currently handle nested arrays');
+      }
+      all = preliminaries.registerable(l, parser) && all; 
+    });
+    return all;
+  }
+  if (typeof lang !== 'string') {
+    throw new Error('preliminaries expects a language string');
+  }
+  // Check if there is an existing parser
+  if (preliminaries.parsers[lang]) {
+    return false;
+  }
+  // Make sure the opening delimiters are unique (if present)
+  // or if not, that this is exactly the same parser (so an alias for an existing language)
+  if (parser.delims) {
+    var a = arrayify(parser.delims)[0];
+    var alang = preliminaries.parsersLangByFirstDelim[a];
+    if (alang && preliminaries.parsers[alang] !== parser) {
+      return false;
+    }
+  }
+  return true;
+};
+
+/**
+ * Check if a parser is registered for the language, or any of the languages if an array is given.
+ *
+ * @param  {String} `lang` The language to check if a parser is registered for.
+ */
+
+preliminaries.registered = function(lang) {
+  if (Array.isArray(lang)) {
+    var any = false;
+    lang.forEach(function(l) { 
+      if (Array.isArray(l)) {
+        throw new Error('preliminaries does not currently handle nested arrays');
+      }
+      any = preliminaries.registered(l) || any; 
+    });
+    return any;
+  }
+  if (typeof lang !== 'string') {
+    throw new Error('preliminaries expects a language string');
+  }
+  var parser = preliminaries.parsers[lang];
+  return !!parser;
 };
 
 /**

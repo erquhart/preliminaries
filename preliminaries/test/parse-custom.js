@@ -30,7 +30,7 @@ describe('Custom parser:', function() {
   });
 
   after(function() {
-    preliminaries.unregisterParser('json');
+    preliminaries.unregister('json');
   });
 
   it('should allow a custom parser to be registered', function() {

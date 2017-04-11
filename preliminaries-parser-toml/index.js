@@ -15,7 +15,7 @@ TOML.stringify = tomljs.dump;
 var tomlParser = function(register) {
   if (register) {
     var preliminaries = require('preliminaries');
-    preliminaries.registerParser('toml', tomlParser);
+    preliminaries.register('toml', tomlParser);
   }
   return tomlParser;
 };

@@ -20,7 +20,7 @@ describe('parse TOML:', function() {
   });
 
   after(function() {
-    preliminaries.unregisterParser('toml');
+    preliminaries.unregister('toml');
   });
 
   it('should parse toml front matter', function() {

@@ -18,8 +18,10 @@ declare module "preliminaries" {
         (register: boolean): Preliminaries;
         parse(str: string, options?: PreliminariesOptions): any;
         stringify(str: string, data: Object, options?: PreliminariesOptions): string;
-        registerParser(lang: string, parser: PreliminariesParser): void;
-        unregisterParser(lang: string): void;
+        register(lang: string | string[], parser: PreliminariesParser): void;
+        unregister(lang: string | string[]): void;
+        registerable(lang: string | string[], parser: PreliminariesParser): void;
+        registered(lang: string | string[]): void;
         jsonParser: PreliminariesParser;
     }
 

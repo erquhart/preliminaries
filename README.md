@@ -178,21 +178,51 @@ preliminaries.test('---\nabc: xyz\n---', {delims: '~~~'});
 // Returns false
 ```
 
-### `Preliminaries.registerParser(lang: string, parser: PreliminariesParser): void`
+### `Preliminaries.register(lang: string | string[], parser: PreliminariesParser): void`
 
 Register a parser for a new language:
 
 ```js
-preliminaries.registerParser('xml', xmlParser);
+preliminaries.register('xml', xmlParser);
 ```
 
-### `Preliminaries.unregisterParser(lang: string): void`
+for this to succeed no parser must be already registered for the language, **and** the opening delimiters of the parser must not match the opening delimiters of *any* parser currently registered (this would lead to ambiguous auto-detection of languages).
+
+An error will be thrown if either of the above conditions are false. You can check if a parser can be registered with `Preliminaries.registerable`.
+
+### `Preliminaries.unregister(lang: string | string[]): void`
 
 Unregister a previously registered parser:
 
 ```js
-preliminaries.unregisterParser('json');
+preliminaries.unregister('json');
 ```
+
+### `Preliminaries.registerable(lang: string | string[], parser: PreliminariesParser): boolean`
+
+Check if a parser can be registered for the language, or all languages if an array -- this returns `false if a parser is already registered for any of the languages, or if the opening delimiters of this parser match those of an already existing parser:
+
+```js
+preliminaries.registerable('---', parser: myParser);
+```
+
+if this call returns `true`, a subsequent call to `Preliminaries.register` will succeed without error.
+
+### `Preliminaries.registered(lang: string | string[]): boolean`
+
+Check if a parser is registered for a language:
+
+```js
+preliminaries.registered('json');
+```
+
+or if one is registered for *any* of the languages:
+
+```js
+preliminaries.registered(['json', 'yaml', 'toml']);
+```
+
+**Note:** a `false` result does not indicate a parser may be registered without error, just that one is not already registered for this language; use `Preliminaries.registerable` for that purpose.
 
 ### `Preliminaries.jsonParser: PreliminariesParser`
 
@@ -200,7 +230,7 @@ The default JSON parser. Use it to register it for another language:
 
 ```js
 var preliminaries = require('preliminaries');
-preliminaries.registerParser('xyz', preliminaries.jsonParser)
+preliminaries.register('xyz', preliminaries.jsonParser)
 preliminaries.parse('---xyz\n{\n"name":"Joseph"\n}\n---\nContent')
 // Returns
 {
@@ -250,7 +280,7 @@ var preliminaries = require('preliminaries');
 
 var myParser = function(register) {
   if (register) {
-    preliminaries.registerParser('abc', myParser);
+    preliminaries.register('abc', myParser);
   }
 }
 

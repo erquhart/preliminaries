@@ -17,7 +17,7 @@ describe('stringify TOML:', function() {
   });
 
   after(function() {
-    preliminaries.unregisterParser('toml');
+    preliminaries.unregister('toml');
   });
 
   it('should extract front matter, extend it, and convert it back to front matter', function() {

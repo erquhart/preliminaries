@@ -17,7 +17,7 @@ describe('stringify YAML:', function() {
   });
 
   after(function() {
-    preliminaries.unregisterParser('yaml');
+    preliminaries.unregister('yaml');
   });
 
   it('should extract front matter, extend it, and convert it back to front matter', function() {

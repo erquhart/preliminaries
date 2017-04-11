@@ -18,7 +18,7 @@ describe('stringify JSON:', function() {
   });
 
   after(function() {
-    preliminaries.unregisterParser('json');
+    preliminaries.unregister('json');
   });
 
   it('stringify json by default', function() {

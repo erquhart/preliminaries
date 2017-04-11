@@ -19,7 +19,7 @@ describe('parse JSON:', function() {
   });
 
   after(function() {
-    preliminaries.unregisterParser('json');
+    preliminaries.unregister('json');
   });
 
   it('should parse JSON front matter', function() {

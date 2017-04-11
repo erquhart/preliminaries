@@ -18,7 +18,7 @@ describe('Test strings:', function() {
   });
 
   after(function() {
-    preliminaries.unregisterParser('json');
+    preliminaries.unregister('json');
   });
 
   it('should return `true` if the string has front matter', function() {

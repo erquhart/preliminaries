@@ -21,12 +21,12 @@ lineEndings.forEach(function(lineEnding) {
     });
 
     after(function() {
-      preliminaries.unregisterParser('json');
+      preliminaries.unregister('json');
     });
 
     afterEach(function() {
-      preliminaries.unregisterParser('xoy');
-      preliminaries.unregisterParser('abc');
+      preliminaries.unregister('xoy');
+      preliminaries.unregister('abc');
     });
 
     it('should extract JSON front matter', function() {
@@ -132,7 +132,7 @@ lineEndings.forEach(function(lineEnding) {
         actualLang = options.lang;
         return str;
       };
-      preliminaries.registerParser('abc', parser);
+      preliminaries.register('abc', parser);
       var fixture = '---abc' + lineEnding + '"name":"troublesome --- value"' + lineEnding + '---' + lineEnding + 'here is some content' + lineEnding;
       preliminaries.parse(fixture);
       actualLang.should.equal('abc');
@@ -146,7 +146,7 @@ lineEndings.forEach(function(lineEnding) {
         actualLang = options.lang;
         return str;
       };
-      preliminaries.registerParser('xoy', parser);
+      preliminaries.register('xoy', parser);
       var fixture = '>>>' + lineEnding + '{' + lineEnding + '"name":"troublesome --- value"' + lineEnding + '}' + lineEnding + '<<<' + lineEnding + 'here is some content' + lineEnding;
       preliminaries.parse(fixture);
       actualLang.should.equal('xoy');
@@ -162,23 +162,17 @@ describe('Preliminaries.parse:', function() {
   });
 
   after(function() {
-    preliminaries.unregisterParser('json');
+    preliminaries.unregister('json');
   });
 
   afterEach(function() {
-    preliminaries.unregisterParser('xyz');
+    preliminaries.unregister('xyz');
   });
 
   it('should throw an error when the detected lang does not match the specified lang', function() {
     (function() {
       preliminaries.parse(fs.readFileSync('./test/fixtures/autodetect-json.md', 'utf8'), {lang: 'xyz'});
     }).should.throw('preliminaries detected a different language: json to the one specified: xyz');
-  });
-
-  it('should throw an error when registering a parser for another lang with delims that clash with existing parser', function() {
-    (function() {
-      preliminaries.registerParser('xyz', preliminaries.jsonParser);
-    }).should.throw('preliminaries cannot register the parser because the delimiters clash with an already registered parser for language: json');
   });
 
   it('should return the content for a string that is only the open delimiter', function() {
