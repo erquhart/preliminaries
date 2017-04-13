@@ -2,7 +2,7 @@
 
 Simple front matter parser for Markdown that supports JSON, YAML, TOML and custom parsers. 
 
-Now with a [JSON5](http://json5.org) parser!
+Now with [JSON5](http://json5.org) support!
 
 Forked from the excellent [jonschlinkert/gray-matter](https://github.com/jonschlinkert/gray-matter), prelimimaries strips things down and makes the YAML and TOML parsers entirely optional, as well as supporting stringifying languages other than YAML.
 
