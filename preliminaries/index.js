@@ -8,7 +8,7 @@
 
 'use strict';
 
-var preliminaries = function(register) {
+var preliminaries = function preliminaries(register) {
   if (register) {
     preliminaries.register('json', jsonParser);
   }
@@ -46,7 +46,7 @@ preliminaries.parsersLangByFirstDelim = [];
  * @return {Object} Valid JSON
  */
 
-preliminaries.parse = function(str, options) {
+preliminaries.parse = function parse(str, options) {
   if (typeof str !== 'string') {
     throw new Error('preliminaries expects a string');
   }
@@ -187,7 +187,7 @@ preliminaries.parse = function(str, options) {
  * @return {String}
  */
 
-preliminaries.stringify = function(str, data, options) {
+preliminaries.stringify = function stringify(str, data, options) {
   var opts = options || {};
   var lang = opts.lang || 'json';
 
@@ -214,7 +214,7 @@ preliminaries.stringify = function(str, data, options) {
  * @param  {Object} `parser` The parser.
  */
 
-preliminaries.register = function(lang, parser) {
+preliminaries.register = function register(lang, parser) {
   if (Array.isArray(lang)) {
     lang.forEach(function(l) { 
       if (Array.isArray(l)) {
@@ -241,8 +241,8 @@ preliminaries.register = function(lang, parser) {
   preliminaries.parsers[lang] = parser;
 };
 
-// Deprecated, remove in 1.3.0
-preliminaries.registerParser = function(lang, parser) {
+// Deprecated
+preliminaries.registerParser = function registerParser(lang, parser) {
   return preliminaries.register(lang, parser);
 };
 
@@ -252,7 +252,7 @@ preliminaries.registerParser = function(lang, parser) {
  * @param  {String} `lang` The language to unregister the parser from.
  */
 
-preliminaries.unregister = function(lang) {
+preliminaries.unregister = function unregister(lang) {
   if (Array.isArray(lang)) {
     lang.forEach(function(l) { 
       if (Array.isArray(l)) {
@@ -275,7 +275,7 @@ preliminaries.unregister = function(lang) {
 };
 
 // Deprecated, remove in 1.3.0
-preliminaries.unregisterParser = function(lang) {
+preliminaries.unregisterParser = function unregisterParser(lang) {
   return preliminaries.unregister(lang);
 };
 
@@ -285,7 +285,7 @@ preliminaries.unregisterParser = function(lang) {
  * @param  {String} `lang` The language to check if a parser is registerable for.
  */
 
-preliminaries.registerable = function(lang, parser) {
+preliminaries.registerable = function registerable(lang, parser) {
   if (Array.isArray(lang)) {
     var all = true;
     lang.forEach(function(l) { 
@@ -321,7 +321,7 @@ preliminaries.registerable = function(lang, parser) {
  * @param  {String} `lang` The language to check if a parser is registered for.
  */
 
-preliminaries.registered = function(lang) {
+preliminaries.registered = function registered(lang) {
   if (Array.isArray(lang)) {
     var any = false;
     lang.forEach(function(l) { 
@@ -347,7 +347,7 @@ preliminaries.registered = function(lang) {
  * @return {Boolean} True if front matter exists.
  */
 
-preliminaries.test = function(str, options) {
+preliminaries.test = function test(str, options) {
   var delims = arrayify(options && options.delims || '---');
   return isFirst(str, delims[0]);
 };
@@ -366,7 +366,7 @@ jsonParser.delims = ['{', '}'];
  * @return {Object} Parsed object of data.
  */
 
-jsonParser.parse = function(str, options) {
+jsonParser.parse = function parse(str, options) {
   var opts = options || {};
   var delims = arrayify(opts.delims || '---');
   try {
@@ -387,7 +387,7 @@ jsonParser.parse = function(str, options) {
  * @return {String} Stringified data.
  */
 
-jsonParser.stringify = function(data, options) {
+jsonParser.stringify = function stringify(data, options) {
   var delims = arrayify(options && options.delims || '---');
   var res = JSON.stringify(data);
   var standard = delims.length === 2 && delims[0] === '{' && delims[1] === '}';
@@ -402,12 +402,6 @@ jsonParser.stringify = function(data, options) {
  */
 
 preliminaries.jsonParser = jsonParser;
-
-/**
- * Expose `preliminaries`
- */
-
-module.exports = preliminaries;
 
 /**
  * Return true if the given `ch` the first
@@ -441,3 +435,9 @@ function arrayify(val) {
 function msg(lang, err) {
   return 'preliminaries parser [' + lang + ']: ' + err;
 }
+
+/**
+ * Expose `preliminaries`
+ */
+
+module.exports = preliminaries;

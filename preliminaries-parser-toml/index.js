@@ -34,7 +34,7 @@ tomlParser.delims = '+++';
  * @api public
  */
 
-tomlParser.parse = function(str, options) {
+tomlParser.parse = function parse(str, options) {
   try {
     return TOML.parse(str);
   } catch (err) {
@@ -51,17 +51,11 @@ tomlParser.parse = function(str, options) {
  * @api public
  */
 
-tomlParser.stringify = function(data, options) {
+tomlParser.stringify = function stringify(data, options) {
   var res = TOML.stringify(data);
   res = res.replace(/(?:\r?\n){1,2}$/, '\n');
   return res;
 };
-
-/**
- * Expose `tomlParser`
- */
-
-module.exports = tomlParser;
 
 /**
  * Normalize error messages
@@ -70,3 +64,9 @@ module.exports = tomlParser;
 function msg(lang, err) {
   return 'preliminaries parser [' + lang + ']: ' + err;
 }
+
+/**
+ * Expose `tomlParser`
+ */
+
+module.exports = tomlParser;

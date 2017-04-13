@@ -32,7 +32,7 @@ yamlParser.delims = '---';
  * @api public
  */
 
-yamlParser.parse = function(str, options) {
+yamlParser.parse = function parse(str, options) {
   try {
     return YAML.safeLoad(str, options);
   } catch (err) {
@@ -49,16 +49,10 @@ yamlParser.parse = function(str, options) {
  * @api public
  */
 
-yamlParser.stringify = function(data, options) {
+yamlParser.stringify = function stringify(data, options) {
   var res = YAML.safeDump(data, options);
   return res;
 };
-
-/**
- * Expose `yamlParser`
- */
-
-module.exports = yamlParser;
 
 /**
  * Normalize error messages
@@ -67,3 +61,9 @@ module.exports = yamlParser;
 function msg(lang, err) {
   return 'preliminaries parser [' + lang + ']: ' + err;
 }
+
+/**
+ * Expose `yamlParser`
+ */
+
+module.exports = yamlParser;
