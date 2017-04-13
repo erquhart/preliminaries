@@ -9,9 +9,7 @@
 'use strict';
 
 var preliminaries = function preliminaries(register) {
-  if (register) {
-    preliminaries.register('json', jsonParser);
-  }
+  jsonParser(register);
   return preliminaries;
 };
 
@@ -192,11 +190,11 @@ preliminaries.stringify = function stringify(str, data, options) {
   var lang = opts.lang || 'json';
 
   // Whether to stringify the language or not
-  var slang = typeof opts.stringifyIncludeLang !== 'undefined' ? opts.stringifyIncludeLang : !opts.delims && !opts.stringifyUseParserDelims;
-
   var parser = opts.parser || preliminaries.parsers[lang];
   if (parser && typeof parser.stringify === 'function') {
-    var delims = opts.delims = arrayify(opts.delims || (opts.stringifyUseParserDelims && parser.delims ? parser.delims : '---'));
+    var useParserDelims = opts.stringifyUseParserDelims && parser.delims;
+    var slang = typeof opts.stringifyIncludeLang !== 'undefined' ? opts.stringifyIncludeLang : !opts.delims && !useParserDelims;
+    var delims = opts.delims = arrayify(opts.delims || (useParserDelims ? parser.delims : '---'));
     var res = delims[0] + (slang ? lang : '') + '\n';
     res += parser.stringify(data, opts);
     res += (delims[1] || delims[0]) + '\n';
@@ -352,7 +350,12 @@ preliminaries.test = function test(str, options) {
   return isFirst(str, delims[0]);
 };
 
-var jsonParser = {};
+function jsonParser(register) {
+  if (register) {
+    preliminaries.register('json', jsonParser);
+  }
+  return jsonParser;
+};
 
 /**
  * Standard json delimiters

@@ -12,7 +12,7 @@ var TOML = require('toml');
 var tomljs = require('toml-js');
 TOML.stringify = tomljs.dump;
 
-var tomlParser = function(register) {
+function tomlParser(register) {
   if (register) {
     var preliminaries = require('preliminaries');
     preliminaries.register('toml', tomlParser);

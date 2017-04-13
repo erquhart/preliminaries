@@ -2,6 +2,8 @@
 
 Simple front matter parser for Markdown that supports JSON, YAML, TOML and custom parsers. 
 
+Now with a [JSON5](http://json5.org) parser!
+
 Forked from the excellent [jonschlinkert/gray-matter](https://github.com/jonschlinkert/gray-matter), prelimimaries strips things down and makes the YAML and TOML parsers entirely optional, as well as supporting stringifying languages other than YAML.
 
 Improved parsing and auto-detection of languages supports JSON front matter with `{` and `}` plain delimiters and TOML with `+++` delimiters as used in [Hugo](https://gohugo.io).
@@ -15,6 +17,7 @@ npm install --save preliminaries
 # Optional
 npm install --save preliminaries-parser-yaml
 npm install --save preliminaries-parser-toml
+npm install --save preliminaries-parser-json5
 ```
 
 **yarn**
@@ -24,6 +27,7 @@ yarn add preliminaries
 # Optional
 yarn add preliminaries-parser-yaml
 yarn add preliminaries-parser-toml
+yarn add preliminaries-parser-json5
 ```
 
 ## Using preliminaries

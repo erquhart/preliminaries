@@ -10,7 +10,7 @@
 
 var YAML = require('js-yaml');
 
-var yamlParser = function(register) {
+function yamlParser(register) {
   if (register) {
     var preliminaries = require('preliminaries');
     preliminaries.register('yaml', yamlParser);
