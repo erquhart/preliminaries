@@ -12,10 +12,9 @@ var preliminaries = require('preliminaries');
 require('should');
 
 describe('stringify JSON5:', function() {
-  var json5Parser;
   
   before(function() {
-    json5Parser = require('..')(true);
+    require('..')(true);
   });
 
   after(function() {
@@ -37,7 +36,7 @@ describe('stringify JSON5:', function() {
 
   it('should NOT stringify lang if custom delimiters are used', function() {
     var data = {name: 'test-name'};
-    var res = preliminaries.stringify('Name: {{name}}', data, {lang:'json5', delims: '---'});
+    var res = preliminaries.stringify('Name: {{name}}', data, {lang: 'json5', delims: '---'});
     res.should.equal([
       '---',
       '{',
@@ -50,7 +49,7 @@ describe('stringify JSON5:', function() {
 
   it('should NOT stringify lang if stringifyIncludeLang is false', function() {
     var data = {name: 'test-name'};
-    var res = preliminaries.stringify('Name: {{name}}', data, {lang:'json5', stringifyIncludeLang: false});
+    var res = preliminaries.stringify('Name: {{name}}', data, {lang: 'json5', stringifyIncludeLang: false});
     res.should.equal([
       '---',
       '{',
@@ -63,7 +62,7 @@ describe('stringify JSON5:', function() {
 
   it('stringify lang if custom delimiters are used and stringifyIncludeLang is true', function() {
     var data = {name: 'test-name'};
-    var res = preliminaries.stringify('Name: {{name}}', data, {lang:'json5', delims: '~~~', stringifyIncludeLang: true});
+    var res = preliminaries.stringify('Name: {{name}}', data, {lang: 'json5', delims: '~~~', stringifyIncludeLang: true});
     res.should.equal([
       '~~~json5',
       '{',
@@ -89,7 +88,7 @@ describe('stringify JSON5:', function() {
 
   it('should use custom delimiters', function() {
     var data = {name: 'test-name'};
-    var res = preliminaries.stringify('Name: {{name}}', data, {lang:'json5', delims: '~~~'});
+    var res = preliminaries.stringify('Name: {{name}}', data, {lang: 'json5', delims: '~~~'});
     res.should.equal([
       '~~~',
       '{',
@@ -102,7 +101,7 @@ describe('stringify JSON5:', function() {
 
   it('use parser delimiters', function() {
     var data = {name: 'test-name'};
-    var res = preliminaries.stringify('Name: {{name}}', data, {lang:'json5', stringifyUseParserDelims: true});
+    var res = preliminaries.stringify('Name: {{name}}', data, {lang: 'json5', stringifyUseParserDelims: true});
     res.should.equal([
       '---json5',
       '{',

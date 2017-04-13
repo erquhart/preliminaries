@@ -8,7 +8,6 @@
 
 'use strict';
 
-var fs = require('fs');
 require('should');
 
 describe('Preliminaries.stringify:', function() {
@@ -24,15 +23,15 @@ describe('Preliminaries.stringify:', function() {
 
   it('should stringify lang if stringifyUseParserDelims is but parser has no delims', function() {
     var parser = function() {
-    }
+    };
     parser.stringify = function() {
       return '';
-    }
+    };
     var actual = preliminaries.stringify('Content', {title: 'Parser'}, {lang: 'mine', parser: parser, stringifyUseParserDelims: true});
     actual.should.equal([
       '---mine',
       '---',
       'Content\n'
-    ].join('\n'))
+    ].join('\n'));
   });
 });

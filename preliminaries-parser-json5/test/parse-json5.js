@@ -71,8 +71,7 @@ describe('parse JSON5:', function() {
   it('should throw on JSON5 syntax errors', function() {
     (function() {
       var fixture = '{\n"title:Bad key"\n}\nContent\n';
-      var actual = preliminaries.parse(fixture, {lang: 'json5', delims: ['{', '}']});
-      console.log('json5', actual)
+      preliminaries.parse(fixture, {lang: 'json5', delims: ['{', '}']});
     }).should.throw('preliminaries parser [JSON5]: SyntaxError: Expected \':\' instead of \'}\' at line 1 column 18 of the JSON5 data. Still to read: "}"');
   });
 });
