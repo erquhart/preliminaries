@@ -44,9 +44,9 @@ Load preliminaries and some parsers and register the parsers for their default l
 
 ```bash
 var { preliminaries, jsonParser } = require('preliminaries');
-var yamlParser = require('preliminaries-parser-yaml');
-var tomlParser = require('preliminaries-parser-toml');
-var json5Parser = require('preliminaries-parser-json5');
+var { yamlParser } = require('preliminaries-parser-yaml');
+var { tomlParser } = require('preliminaries-parser-toml');
+var { json5Parser } = require('preliminaries-parser-json5');
 
 preliminaries
   .register(jsonParser)
@@ -59,9 +59,9 @@ the same with ES6 `import`:
 
 ```bash
 import { preliminaries, jsonParser } from 'preliminaries';
-import yamlParser from 'preliminaries-parser-yaml';
-import tomlParser from 'preliminaries-parser-toml';
-import json5Parser from 'preliminaries-parser-json5';
+import { yamlParser } from 'preliminaries-parser-yaml';
+import { tomlParser } from 'preliminaries-parser-toml';
+import { json5Parser } from 'preliminaries-parser-json5';
 
 preliminaries
   .register(yamlParser)

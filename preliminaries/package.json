@@ -1,7 +1,7 @@
 {
   "name": "preliminaries",
   "description": "Simple front matter parser that supports YAML, JSON and TOML.",
-  "version": "1.3.0",
+  "version": "2.0.0-alpha.1",
   "homepage": "https://github.com/josephearl/preliminaries",
   "author": "Joseph Earl (https://github.com/josephearl)",
   "contributors": [
@@ -52,6 +52,6 @@
     "jekyll",
     "hugo"
   ],
-  "readme": "../README.md",
+  "readme": "README.md",
   "typings": "preliminaries.d.ts"
 }
