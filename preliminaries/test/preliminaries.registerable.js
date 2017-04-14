@@ -23,31 +23,31 @@ describe('Preliminaries.registerable:', function() {
 
   it('should return `false` if a parser is already registered for the language', function() {
     var parser = {};
-    var actual = preliminaries.registerable('json', parser);
+    var actual = preliminaries.registerable(parser, 'json');
     actual.should.be.false();
   });
 
   it('should return `false` if a parser is already registered for any language', function() {
     var parser = {};
-    var actual = preliminaries.registerable(['json', 'none'], parser);
+    var actual = preliminaries.registerable(parser, ['json', 'none']);
     actual.should.be.false();
   });
 
   it('should return `false` if a parser is already registered with the same opening delimiters', function() {
     var parser = {delims: ['{', '>']};
-    var actual = preliminaries.registerable('none', parser);
+    var actual = preliminaries.registerable(parser, 'none');
     actual.should.be.false();
   });
 
   it('should return `true` if no parser is registered for the language and the opening delimiters are unique', function() {
     var parser = {delims: ['<', '>']};
-    var actual = preliminaries.registerable('none', parser);
+    var actual = preliminaries.registerable(parser, 'none');
     actual.should.be.true();
   });
 
   it('should return `true` if no parser is registered for all of the languages and the opening delimiters are unique', function() {
     var parser = {delims: ['<', '>']};
-    var actual = preliminaries.registerable(['none', 'none2'], parser);
+    var actual = preliminaries.registerable(parser, ['none', 'none2']);
     actual.should.be.true();
   });
 });

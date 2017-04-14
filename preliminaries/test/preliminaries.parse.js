@@ -132,7 +132,7 @@ lineEndings.forEach(function(lineEnding) {
         actualLang = options.lang;
         return str;
       };
-      preliminaries.register('abc', parser);
+      preliminaries.register(parser, 'abc');
       var fixture = '---abc' + lineEnding + '"name":"troublesome --- value"' + lineEnding + '---' + lineEnding + 'here is some content' + lineEnding;
       preliminaries.parse(fixture);
       actualLang.should.equal('abc');
@@ -146,7 +146,7 @@ lineEndings.forEach(function(lineEnding) {
         actualLang = options.lang;
         return str;
       };
-      preliminaries.register('xoy', parser);
+      preliminaries.register(parser, 'xoy');
       var fixture = '>>>' + lineEnding + '{' + lineEnding + '"name":"troublesome --- value"' + lineEnding + '}' + lineEnding + '<<<' + lineEnding + 'here is some content' + lineEnding;
       preliminaries.parse(fixture);
       actualLang.should.equal('xoy');

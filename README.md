@@ -43,17 +43,31 @@ Registers the parser for it's default language.
 Load preliminaries and some parsers and register the parsers for their default languages:
 
 ```bash
-var preliminaries = require('preliminaries')(true);
-require('preliminaries-parser-yaml')(true);
-require('preliminaries-parser-toml')(true);
+var { preliminaries, jsonParser } = require('preliminaries');
+var yamlParser = require('preliminaries-parser-yaml');
+var tomlParser = require('preliminaries-parser-toml');
+var json5Parser = require('preliminaries-parser-json5');
+
+preliminaries
+  .register(jsonParser)
+  .register(tomlParser)
+  .register(yamlParser);
+  .register(json5Parser);
 ```
 
-Load preliminaries and some parsers without registering any parsers:
+the same with ES6 `import`:
 
 ```bash
-var preliminaries = require('preliminaries');
-var tomlParser = require('preliminaries-parser-yaml');
-var yamlParser = require('preliminaries-parser-toml');
+import { preliminaries, jsonParser } from 'preliminaries';
+import yamlParser from 'preliminaries-parser-yaml';
+import tomlParser from 'preliminaries-parser-toml';
+import json5Parser from 'preliminaries-parser-json5';
+
+preliminaries
+  .register(yamlParser)
+  .register(jsonParser)
+  .register(tomlParser)
+  .register(json5Parser);
 ```
 
 ### `Preliminaries.parse(str: string, options?: PreliminariesOptions): any`

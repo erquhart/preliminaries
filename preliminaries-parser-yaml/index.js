@@ -13,10 +13,15 @@ var YAML = require('js-yaml');
 function yamlParser(register) {
   if (register) {
     var preliminaries = require('preliminaries');
-    preliminaries.register('yaml', yamlParser);
+    preliminaries.register(yamlParser);
   }
   return yamlParser;
 };
+
+/**
+ * Language
+ */
+yamlParser.lang = 'yaml';
 
 /**
  * Standard YAML delimiters

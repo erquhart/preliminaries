@@ -193,7 +193,7 @@ preliminaries.stringify = function stringify(str, data, options) {
   var parser = opts.parser || preliminaries.parsers[lang];
   if (parser && typeof parser.stringify === 'function') {
     var useParserDelims = opts.stringifyUseParserDelims && parser.delims;
-    var slang = typeof opts.stringifyIncludeLang !== 'undefined' ? opts.stringifyIncludeLang : !opts.delims && !useParserDelims;
+    var slang = opts.hasOwnProperty('stringifyIncludeLang') ? opts.stringifyIncludeLang : !opts.delims && !useParserDelims;
     var delims = opts.delims = arrayify(opts.delims || (useParserDelims ? parser.delims : '---'));
     var res = delims[0] + (slang ? lang : '') + '\n';
     res += parser.stringify(data, opts);
@@ -212,13 +212,20 @@ preliminaries.stringify = function stringify(str, data, options) {
  * @param  {Object} `parser` The parser.
  */
 
-preliminaries.register = function register(lang, parser) {
+preliminaries.register = function register(parser, lang, delims) {
+  if (!parser) {
+    throw new Error('preliminaries expects a parser');
+  }
+  if (!lang && !parser.lang) {
+    throw new Error('preliminaries expects a parser with a lang or a lang option');
+  }
+  lang = lang || parser.lang;
   if (Array.isArray(lang)) {
     lang.forEach(function(l) { 
       if (Array.isArray(l)) {
-        throw new Error('preliminaries does not currently handle nested arrays');
+        throw new Error('preliminaries does not currently handle nested language arrays');
       }
-      preliminaries.register(l, parser); 
+      preliminaries.register(parser, l, delims); 
     });
     return;
   }
@@ -228,8 +235,9 @@ preliminaries.register = function register(lang, parser) {
   if (preliminaries.parsers[lang]) {
     throw new Error('preliminaries cannot register the parser because a parser is already registered for language: ' + lang);
   }
-  if (parser.delims) {
-    var a = arrayify(parser.delims)[0];
+  delims = arguments.length > 2 ? delims : parser.delims;
+  if (delims) {
+    var a = arrayify(delims)[0];
     var alang = preliminaries.parsersLangByFirstDelim[a];
     if (alang && preliminaries.parsers[alang] !== parser) {
       throw new Error('preliminaries cannot register the parser because the delimiters clash with an already registered parser for language: ' + preliminaries.parsersLangByFirstDelim[a]);
@@ -237,11 +245,7 @@ preliminaries.register = function register(lang, parser) {
     preliminaries.parsersLangByFirstDelim[a] = lang;
   }
   preliminaries.parsers[lang] = parser;
-};
-
-// Deprecated
-preliminaries.registerParser = function registerParser(lang, parser) {
-  return preliminaries.register(lang, parser);
+  return preliminaries;
 };
 
 /**
@@ -250,31 +254,37 @@ preliminaries.registerParser = function registerParser(lang, parser) {
  * @param  {String} `lang` The language to unregister the parser from.
  */
 
-preliminaries.unregister = function unregister(lang) {
+preliminaries.unregister = function unregister(parser, lang, delims) {
+  if (typeof parser === 'string') {
+    delims = lang;
+    lang = parser;
+    parser = null;
+  }
+  if (!lang && (parser && !parser.lang)) {
+    throw new Error('preliminaries expects a parser with a lang or a lang option');
+  }
+  lang = lang || (parser && parser.lang);
   if (Array.isArray(lang)) {
     lang.forEach(function(l) { 
       if (Array.isArray(l)) {
         throw new Error('preliminaries does not currently handle nested arrays');
       }
-      preliminaries.unregister(l, parser); 
+      preliminaries.unregister(parser, l, delims); 
     });
-    return;
+    return preliminaries;
   }
   if (typeof lang !== 'string') {
     throw new Error('preliminaries expects a language string');
   }
-  var parser = preliminaries.parsers[lang];
-  if (parser) {
+  var existingParser = preliminaries.parsers[lang];
+  if (existingParser) {
     delete preliminaries.parsers[lang];
-    if (parser.delims) {
-      delete preliminaries.parsersLangByFirstDelim[arrayify(parser.delims)[0]];
+    delims = arguments.length > 2 ? delims : parser ? parser.delims : existingParser.delims;
+    if (delims) {
+      delete preliminaries.parsersLangByFirstDelim[arrayify(delims)[0]];
     }
   }
-};
-
-// Deprecated, remove in 1.3.0
-preliminaries.unregisterParser = function unregisterParser(lang) {
-  return preliminaries.unregister(lang);
+  return preliminaries;
 };
 
 /**
@@ -283,14 +293,21 @@ preliminaries.unregisterParser = function unregisterParser(lang) {
  * @param  {String} `lang` The language to check if a parser is registerable for.
  */
 
-preliminaries.registerable = function registerable(lang, parser) {
+preliminaries.registerable = function registerable(parser, lang, delims) {
+  if (!parser) {
+    throw new Error('preliminaries expects a parser');
+  }
+  if (!lang && !parser.lang) {
+    throw new Error('preliminaries expects a parser with a lang or a lang option');
+  }
+  lang = lang || parser.lang;
   if (Array.isArray(lang)) {
     var all = true;
     lang.forEach(function(l) { 
       if (Array.isArray(l)) {
         throw new Error('preliminaries does not currently handle nested arrays');
       }
-      all = preliminaries.registerable(l, parser) && all; 
+      all = preliminaries.registerable(parser, l, delims) && all; 
     });
     return all;
   }
@@ -303,8 +320,9 @@ preliminaries.registerable = function registerable(lang, parser) {
   }
   // Make sure the opening delimiters are unique (if present)
   // or if not, that this is exactly the same parser (so an alias for an existing language)
-  if (parser.delims) {
-    var a = arrayify(parser.delims)[0];
+  delims = arguments.length > 2 ? delims : parser.delims;
+  if (delims) {
+    var a = arrayify(delims)[0];
     var alang = preliminaries.parsersLangByFirstDelim[a];
     if (alang && preliminaries.parsers[alang] !== parser) {
       return false;
@@ -352,10 +370,15 @@ preliminaries.test = function test(str, options) {
 
 function jsonParser(register) {
   if (register) {
-    preliminaries.register('json', jsonParser);
+    preliminaries.register(jsonParser);
   }
   return jsonParser;
 };
+
+/**
+ * Language
+ */
+jsonParser.lang = 'json';
 
 /**
  * Standard json delimiters

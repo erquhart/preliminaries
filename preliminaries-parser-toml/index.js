@@ -15,10 +15,15 @@ TOML.stringify = tomljs.dump;
 function tomlParser(register) {
   if (register) {
     var preliminaries = require('preliminaries');
-    preliminaries.register('toml', tomlParser);
+    preliminaries.register(tomlParser);
   }
   return tomlParser;
 };
+
+/**
+ * Language
+ */
+tomlParser.lang = 'toml';
 
 /**
  * Standard TOML delimiters

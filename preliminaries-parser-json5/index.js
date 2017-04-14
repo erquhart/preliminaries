@@ -13,7 +13,7 @@ var JSON5 = require('json5');
 var json5Parser = function(register) {
   if (register) {
     var preliminaries = require('preliminaries');
-    preliminaries.register('json5', json5Parser);
+    preliminaries.register(json5Parser);
   }
   return json5Parser;
 };
@@ -25,6 +25,11 @@ var json5Parser = function(register) {
 // `preliminaries.register` so that auto-registering the included json parser
 // and the json5 parser does not cause an error
 //json5Parser.delims = ['{', '}'];
+
+/**
+ * Language
+ */
+json5Parser.lang = 'json5';
 
 /**
  * Parse JSON front matter
