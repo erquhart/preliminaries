@@ -26,23 +26,15 @@
     "node": ">=0.10.0"
   },
   "scripts": {
-    "flow": "flow",
-    "prettier": "prettier --write index.js",
-    "lint": "npm run flow && npm run prettier",
-    "test": "mocha",
-    "build": "rollup -c"
+    "lint": "eslint .",
+    "test": "mocha"
   },
-  "dependencies": {},
+  "dependencies": {
+  },
   "devDependencies": {
-    "babel-plugin-external-helpers": "^6.22.0",
-    "babel-preset-es2015": "^6.24.1",
-    "babel-preset-flow": "^6.23.0",
-    "flow-bin": "^0.44.0",
+    "eslint": "^3.19.0",
     "js-yaml": "^3.8.1",
     "mocha": "^3.2.0",
-    "prettier": "^1.1.0",
-    "rollup": "^0.41.6",
-    "rollup-plugin-babel": "^2.7.1",
     "should": "^11.2.0"
   },
   "keywords": [

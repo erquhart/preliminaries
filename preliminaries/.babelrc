@@ -1,0 +1,17 @@
+{
+  "presets": [
+    "flow",
+    [
+      "es2015",
+      {
+        "modules": false
+      }
+    ]
+  ],
+  "ignore": [
+    "node_modules/**"
+  ],
+  "plugins": [
+    "external-helpers"
+  ]
+}
