@@ -29,8 +29,8 @@
     "flow": "flow",
     "prettier": "prettier --write '{src,tests}/**/*.js'",
     "lint": "npm run flow && npm run prettier",
-    "test": "jest",
-    "build": "rollup -c"
+    "test": "NODE_ENV=development jest",
+    "build": "NODE_ENV=production rollup -c"
   },
   "dependencies": {},
   "devDependencies": {
@@ -62,6 +62,5 @@
     "jekyll",
     "hugo"
   ],
-  "readme": "README.md",
-  "typings": "preliminaries.d.ts"
+  "readme": "README.md"
 }

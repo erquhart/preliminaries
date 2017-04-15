@@ -6,6 +6,6 @@ export default {
   moduleName: 'preliminaries',
   dest: 'dist/index.js',
   plugins: [
-    babel({include: 'src/index.js'})
+    babel()
   ]
 };
