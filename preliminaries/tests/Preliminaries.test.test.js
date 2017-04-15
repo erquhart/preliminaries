@@ -9,21 +9,29 @@
 // @flow
 "use strict";
 
-import Preliminaries from "../src/index";
+import Preliminaries from "../src/Preliminaries";
 
-const preliminaries: Preliminaries = new Preliminaries();
-
-test("Test strings:", () => {
+describe("Test strings:", () => {
   it("should return `true` if the string has front matter", () => {
+    const preliminaries: Preliminaries = new Preliminaries();
     expect(preliminaries.test("---\nabc: xyz\n---")).toBe(true);
     expect(preliminaries.test("---yaml\nabc: xyz\n---")).toBe(true);
     expect(
       preliminaries.test("---yaml\nabc: xyz\n---", { delims: "---" })
     ).toBe(true);
-    expect(preliminaries.test('{\n"abc": "xyz"\n}')).toBe(true);
+    expect(
+      preliminaries.test('{\n"abc": "xyz"\n}', { delims: ["{", "}"] })
+    ).toBe(true);
+    expect(
+      preliminaries.test('{\n"abc": "xyz"\n}', { delims: ["{", ">"] })
+    ).toBe(true);
     expect(preliminaries.test('---json\n{\n"abc": "xyz"\n}\n---')).toBe(true);
-    expect(preliminaries.test('+++\nabc = "xyz"\n+++')).toBe(true);
-    expect(preliminaries.test('~~~\nabc = "xyz"\n~~~')).toBe(true);
+    expect(preliminaries.test('+++\nabc = "xyz"\n+++', { delims: "+++" })).toBe(
+      true
+    );
+    expect(preliminaries.test('~~~\nabc = "xyz"\n~~~', { delims: "~~~" })).toBe(
+      true
+    );
     expect(preliminaries.test('---toml\nabc = "xyz"\n---')).toBe(true);
     expect(preliminaries.test("~~~\nabc: xyz\n~~~", { delims: "~~~" })).toBe(
       true
@@ -31,6 +39,7 @@ test("Test strings:", () => {
   });
 
   it("should return `false` if the string does not have valid front matter", () => {
+    const preliminaries: Preliminaries = new Preliminaries();
     expect(preliminaries.test("---\nabc: xyz\n---", { delims: "~~~" })).toBe(
       false
     );

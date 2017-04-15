@@ -18,12 +18,12 @@
   },
   "license": "MIT",
   "files": [
-    "preliminaries.d.ts",
-    "index.js"
+    "dist/preliminaries.js"
   ],
-  "main": "index.js",
+  "main": "dist/preliminaries.js",
+  "module": "src/Preliminaries.mjs",
   "engines": {
-    "node": ">=0.10.0"
+    "node": ">=6.0.0"
   },
   "scripts": {
     "flow": "flow",
