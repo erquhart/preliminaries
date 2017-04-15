@@ -27,10 +27,17 @@
   },
   "scripts": {
     "flow": "flow",
-    "prettier": "prettier --write '{src,tests}/**/*.js'",
+    "prettier:src": "prettier --write 'src/**/*.js'",
+    "prettier:test": "prettier --write 'test/**/*.js'",
+    "prettier:scripts": "prettier --write '*.js'",
+    "prettier": "npm run prettier:src && npm run prettier:test && npm run prettier:scripts",
+    "jest": "NODE_ENV=development jest",
+    "rollup:umd": "NODE_ENV=production rollup -c rollup.umd.js",
+    "rollup:es": "NODE_ENV=production rollup -c rollup.es.js",
+    "rollup": "npm run rollup:umd && npm run rollup:es",
     "lint": "npm run flow && npm run prettier",
-    "test": "NODE_ENV=development jest",
-    "build": "NODE_ENV=production rollup -c"
+    "test": "npm run jest",
+    "build": "npm run rollup"
   },
   "dependencies": {},
   "devDependencies": {
