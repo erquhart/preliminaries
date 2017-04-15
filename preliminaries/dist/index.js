@@ -4,6 +4,22 @@
 	(global.preliminaries = factory());
 }(this, (function () { 'use strict';
 
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
+  return typeof obj;
+} : function (obj) {
+  return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
+};
+
+
+
+
+
+
+
+
+
+
+
 var classCallCheck = function (instance, Constructor) {
   if (!(instance instanceof Constructor)) {
     throw new TypeError("Cannot call a class as a function");
@@ -36,324 +52,307 @@ var createClass = function () {
  * Licensed under the MIT License.
  */
 
+/**
+ * Return true if the given `ch` the first
+ * thing in the string.
+ */
+
+function isFirst(str, ch) {
+  return str.substr(0, ch.length) === ch;
+}
+
+/**
+ * Utility to strip byte order marks.
+ */
+function stripBom(str) {
+  return str.charAt(0) === "\uFEFF" ? str.slice(1) : str;
+}
+
+/**
+ * Typecast `val` to an array.
+ */
+function arrayify(val) {
+  return !Array.isArray(val) ? [val] : val;
+}
+
+/**
+ * Infer the language from the first delimiter 
+ * if a parser is registered for that delimiter.
+ */
+function inferLang(str, delims, langSelector) {
+  var len = str.length;
+  // Don't infer if the document has a language in the front matter like `---yaml`
+  var delimsArr = arrayify(delims);
+  var firstDelimLen = delimsArr[0].length;
+  if (len >= firstDelimLen + 1 && str.substr(0, firstDelimLen) === delimsArr[0]) {
+    var charAfterFirstDelim = str.charAt(firstDelimLen);
+    if (charAfterFirstDelim !== "\n" && charAfterFirstDelim !== "\r" && str.charAt(firstDelimLen + 1) !== "\n") {
+      return null;
+    }
+  }
+  var firstFoundDelimLen = str.indexOf("\n");
+  if (firstFoundDelimLen < 1) {
+    return null;
+  }
+  var firstFoundDelim = str.substr(0, firstFoundDelimLen);
+  var firstFoundDelimLastCharIdx = firstFoundDelim.length - 1;
+  firstFoundDelim = firstFoundDelim.charAt(firstFoundDelimLastCharIdx) === "\r" ? firstFoundDelim.substr(0, firstFoundDelimLastCharIdx) : firstFoundDelim;
+  firstFoundDelim = firstFoundDelim.trim();
+  return !!firstFoundDelim ? langSelector(firstFoundDelim) : null;
+}
+
 var Preliminaries = function () {
-  function Preliminaries(defaultLang, defaultDelims) {
+  function Preliminaries(options) {
     classCallCheck(this, Preliminaries);
 
-    this.defaultLang = defaultLang || 'json';
-    this.defaultDelims = defaultDelims || '---';
-    this.parsers = [];
-    this.parsersLangByFirstDelim = [];
+    this.__defaultLang = options && options.lang || "json";
+    this.__defaultDelims = options && options.delims || "---";
+    this.__parsers = {};
+    this.__parsersByFirstDelim = {};
   }
 
+  /**
+   * Returns the default language for this preliminaries instance.
+   */
+
+
   createClass(Preliminaries, [{
-    key: 'parse',
+    key: "parse",
 
 
     /**
      * Parses a `string` of front matter with the given `options`,
      * and returns an object.
-     *
-     * ```js
-     * preliminaries.parse('---\ntitle: foo\n---\nbar');
-     * //=> {data: {title: 'foo'}, content: 'bar'}
-     * ```
-     *
-     * @param {String} `string` The string to parse.
-     * @param {Object} `options`
-     *   @option {Array} [options] `delims` Custom delimiters formatted as an array. The default is `['---', '---']`.
-     *   @option {Function} [options] `parser` Parser function to use.
-     * @return {Object} Valid JSON
      */
     value: function parse(str, options) {
-      if (typeof str !== 'string') {
-        throw new Error('preliminaries expects a string');
-      }
-      var opts = options || {};
+      var _this = this;
 
-      // Default results to build up
-      var res = { data: {}, content: str };
-      if (str === '') {
-        return res;
+      if (typeof str !== "string") {
+        throw new Error("preliminaries.parse: expected a string to parse as the first argument");
       }
-
+      if (str === "") {
+        return { data: {}, content: "" };
+      }
       // Strip byte order marks
       str = stripBom(str);
       var len = str.length;
-
-      // Default language and delimiters
-      var lang = this.defaultLang;
-      var delims = this.defaultDelims;
-
       // If no delimiters are set and if no parser and no language is defined,
       // try to infer the language by matching the first delimiter with parsers
-      var inferred = null;
-      if (!opts.delims && !opts.parser && !opts.lang) {
-        var infer = true;
-        // don't infer if the document has a language in the front matter like `---yaml`
-        var dlen = delims.length;
-        if (len >= dlen + 1 && str.substr(0, dlen) === delims) {
-          var c = str.charAt(dlen);
-          if (c !== '\n' && c !== '\r' && str.charAt(dlen + 1) !== '\n') {
-            infer = false;
-          }
-        }
-        var idlen = str.indexOf('\n');
-        if (infer && idlen > 0) {
-          var ia = str.substr(0, idlen);
-          ia = ia.charAt(ia.length - 1) === '\r' ? ia.substr(0, ia.length - 1) : ia;
-          ia = ia.trim();
-          inferred = this.parsersLangByFirstDelim[ia];
-          if (ia && inferred) {
-            lang = inferred;
-            opts.delims = this.parsers[lang].delims;
-          }
-        }
-      }
-
-      delims = opts.delims = arrayify(opts.delims || delims);
-      lang = opts.lang || lang;
-
+      var infer = !options || !options.delims && !options.lang && !options.parser;
+      var inferredLang = infer ? inferLang(str, this.__defaultDelims, function (d) {
+        return _this.__parsersByFirstDelim[d];
+      }) : null;
+      var inferredDelims = inferredLang ? this.__parsers[inferredLang].defaultDelims : null;
+      // Delimiters
+      var delims = arrayify(options && options.delims || inferredDelims || this.__defaultDelims);
       // If the first delim isn't the first thing, return
-      var a = delims[0];
-      if (!isFirst(str, a)) {
-        return res;
+      var firstDelim = delims[0];
+      if (!isFirst(str, firstDelim)) {
+        return { data: {}, content: "" };
       }
-
-      var alen = a.length;
-      var b = '\n' + (delims[1] || delims[0]);
-
+      var firstDelimLen = firstDelim.length;
+      var newlineLastDelim = "\n" + (delims[1] || delims[0]);
       // If the next character after the first delim
       // is a character in the first delim, then just
-      // return the default object. it's either a bad
+      // return the default object. It's either a bad
       // delim or not a delimiter at all.
-      var aftera = str.charAt(alen + 1);
-      if (aftera && a.indexOf(aftera) !== -1) {
-        return res;
+      var charAfterFirstDelim = str.charAt(firstDelimLen);
+      if (charAfterFirstDelim && firstDelim.indexOf(charAfterFirstDelim) !== -1) {
+        return { data: {}, content: "" };
       }
-
       // Find the index of the next delimiter before
-      // going any further. If not found, return.
-      var end = str.indexOf(b, alen + 1);
-      if (end === -1) {
-        end = len;
-      }
-
+      // going any further. If not found, treat the end
+      // of the document as the end.
+      var lastDelimIdx = str.indexOf(newlineLastDelim, firstDelimLen + 1);
+      var end = lastDelimIdx === -1 ? len : lastDelimIdx;
       // Detect a language from after the first delimiters, if defined
-      var detected = str.slice(alen, str.indexOf('\n'));
+      var detectedLang = str.slice(firstDelimLen, str.indexOf("\n"));
       // Measure the lang before trimming whitespace
-      var start = alen + detected.length;
-      detected = detected.trim();
-      // Check languages match
-      if (!opts.parser && detected) {
-        if (opts.lang && detected !== opts.lang) {
-          throw new Error('preliminaries detected a different language: ' + detected + ' to the one specified: ' + opts.lang);
-        }
-        if (inferred && detected !== inferred) {
-          throw new Error('preliminaries detected a different language: ' + detected + ' to the one inferred: ' + inferred);
-        }
+      var start = firstDelimLen + detectedLang.length;
+      detectedLang = detectedLang.trim();
+      // Check languages match if language is important
+      // i.e. a custom parser is not defined.
+      var detectedLanguageAndNoCustomParser = !!detectedLang && (!options || !options.parser);
+      if (detectedLanguageAndNoCustomParser && options && options.lang && detectedLang !== options.lang) {
+        throw new Error("preliminaries.parse: detected a different lang '" + detectedLang + "' to the lang option '" + options.lang + "'");
       }
-
-      lang = opts.lang = detected || lang;
-
-      // Get the front matter (data) string
-      var data = str.slice(start, end).trim();
-      if (data) {
+      // The final language
+      var lang = options && options.lang || detectedLang || inferredLang || this.__defaultLang;
+      // Get the front matter
+      var frontmatter = str.slice(start, end).trim();
+      var data = {};
+      if (frontmatter) {
         // If data exists, see if we have a matching parser
-        var parser = opts.parser || this.parsers[lang];
-        if (parser && typeof parser.parse === 'function') {
-          // Run the parser on the data string
-          res.data = parser.parse(data, opts);
-        } else {
-          throw new Error('preliminaries cannot find a parser for: ' + str);
+        var _parser = options && options.parser || this.__parsers[lang];
+        if (!_parser) {
+          throw new Error("preliminaries.parse: cannot find a parser for lang '" + lang + "'");
         }
+        if (!_typeof(_parser.parse) !== "function") {
+          throw new Error("preliminaries.parse: parser for lang '" + lang + "' does not have a parse method");
+        }
+        // Protect against a bad parser returning null
+        data = _parser.parse(frontmatter) || {};
       }
-
       // Grab the content from the string, stripping
-      // an optional new line after the second delim
-      var con = str.substr(end + b.length);
-      if (con.charAt(0) === '\n') {
-        con = con.substr(1);
-      } else if (con.charAt(0) === '\r' && con.charAt(1) === '\n') {
-        con = con.substr(2);
+      // an optional new line after the second delim.
+      var content = str.substr(lastDelimIdx + newlineLastDelim.length);
+      if (content.charAt(0) === "\n") {
+        content = content.substr(1);
+      } else if (content.charAt(0) === "\r" && content.charAt(1) === "\n") {
+        content = content.substr(2);
       }
-
-      res.content = con;
-      return res;
+      return { data: data, content: content };
     }
 
     /**
-     * Stringify an object to front matter, and
-     * concatenate it to the given string.
-     *
-     * ```js
-     * preliminaries.stringify('foo bar baz', {title: 'Home'});
-     * ```
-     * Results in:
-     *
-     * ```yaml
-     * ---
-     * {
-     * title: Home
-     * }
-     * ---
-     * foo bar baz
-     * ```
-     *
-     * @param {String} `str` The content string to append to stringified front matter.
-     * @param {Object} `data` Front matter to stringify.
-     * @param {Object} `options` Options to pass to the parser.
-     * @return {String}
+     * Stringify an object to front matter, and concatenate it to the given string.
      */
 
   }, {
-    key: 'stringify',
+    key: "stringify",
     value: function stringify(str, data, options) {
-      var opts = options || {};
-      var lang = opts.lang || 'json';
-
-      // Whether to stringify the language or not
-      var parser = opts.parser || preliminaries.parsers[lang];
-      if (parser && typeof parser.stringify === 'function') {
-        var useParserDelims = opts.stringifyUseParserDelims && parser.delims;
-        var slang = opts.hasOwnProperty('stringifyIncludeLang') ? opts.stringifyIncludeLang : !opts.delims && !useParserDelims;
-        var delims = opts.delims = arrayify(opts.delims || (useParserDelims ? parser.delims : '---'));
-        var res = delims[0] + (slang ? lang : '') + '\n';
-        res += parser.stringify(data, opts);
-        res += (delims[1] || delims[0]) + '\n';
-        res += str + '\n';
-        return res;
-      } else {
-        throw new Error('preliminaries cannot find a parser for: ' + str);
+      var lang = options && options.lang || this.__defaultLang;
+      var parser = options && options.parser || this.__parsers[lang];
+      if (!parser) {
+        throw new Error("preliminaries.stringify: cannot find a parser for lang '" + lang + "'");
       }
+      if (!_typeof(parser.stringify) !== "function") {
+        throw new Error("preliminaries.stringify: parser for lang '" + lang + "' does not have a stringify method");
+      }
+      var useParserDelims = !!(options && options.useParserDelims && parser.defaultDelims);
+      var includeLang = options && options.includeLang || (!options || typeof options.includeLang === "undefined") && !useParserDelims && (!options || !options.delims);
+      var delims = arrayify(options && options.delims || (useParserDelims ? parser.defaultDelims : this.__defaultDelims));
+      var result = delims[0] + (includeLang ? lang : "") + "\n";
+      result += parser.stringify(data, { lang: lang, delims: delims });
+      result += (delims[1] || delims[0]) + "\n";
+      result += str + "\n";
+      return result;
     }
 
     /**
-     * Register a parser
-     *
-     * @param  {String} `lang` The language to register the parser for.
-     * @param  {Object} `parser` The parser.
+     * Return true if the given string `str` has front matter.
      */
 
   }, {
-    key: 'register',
-    value: function register(parser, lang, delims) {
+    key: "test",
+    value: function test(str, options) {
+      var delims = arrayify(options && options.delims || this.__defaultDelims);
+      return isFirst(str, delims[0]);
+    }
+
+    /**
+     * Register a parser.
+     */
+
+  }, {
+    key: "register",
+    value: function register(parser, options) {
+      var _this2 = this;
+
       if (!parser) {
-        throw new Error('preliminaries expects a parser');
+        throw new Error("preliminaries.register: expected a parser as the first argument");
       }
-      if (!lang && !parser.lang) {
-        throw new Error('preliminaries expects a parser with a lang or a lang option');
+      if (!(options && options.lang) && !parser.defaultLang) {
+        throw new Error("preliminaries.register: expected a parser with a defaultLang property or a lang option");
       }
-      lang = lang || parser.lang;
-      if (Array.isArray(lang)) {
-        lang.forEach(function (l) {
-          if (Array.isArray(l)) {
-            throw new Error('preliminaries does not currently handle nested language arrays');
-          }
-          this.register(parser, l, delims);
-        });
-        return;
-      }
-      if (typeof lang !== 'string') {
-        throw new Error('preliminaries expects a language string');
-      }
-      if (this.parsers[lang]) {
-        throw new Error('preliminaries cannot register the parser because a parser is already registered for language: ' + lang);
-      }
-      delims = arguments.length > 2 ? delims : parser.delims;
-      if (delims) {
-        var a = arrayify(delims)[0];
-        var alang = this.parsersLangByFirstDelim[a];
-        if (alang && this.parsers[alang] !== parser) {
-          throw new Error('preliminaries cannot register the parser because the delimiters clash with an already registered parser for language: ' + preliminaries.parsersLangByFirstDelim[a]);
+      var langs = arrayify(options && options.lang || parser.defaultLang);
+      langs.forEach(function (lang) {
+        if (typeof lang !== "string") {
+          throw new Error("preliminaries.register: expected lang to be a string but got '" + lang + "'");
         }
-        this.parsersLangByFirstDelim[a] = lang;
+        if (_this2.__parsers[lang]) {
+          throw new Error("preliminaries.register: cannot register the parser because a parser is already registered for lang '" + lang + "'");
+        }
+      });
+      if (options && options.delims || parser.defaultDelims) {
+        var _delims = arrayify(options && options.delims || parser.defaultDelims);
+        var firstDelim = _delims[0];
+        var registeredParserLang = this.__parsersByFirstDelim[firstDelim];
+        var registeredParser = registeredParserLang ? this.__parsers[registeredParserLang] : null;
+        if (registeredParserLang && registeredParser && registeredParser !== parser) {
+          throw new Error("preliminaries.register: cannot register the parser because the opening delims '" + _delims[0] + "' clash with an already registered parser for lang '" + registeredParserLang + "'");
+        }
+        this.__parsersByFirstDelim[firstDelim] = langs[0];
       }
-      this.parsers[lang] = parser;
+      langs.forEach(function (lang) {
+        _this2.__parsers[lang] = parser;
+      });
       return this;
     }
 
     /**
-     * Unegister a parser
-     *
-     * @param  {String} `lang` The language to unregister the parser from.
+     * Unegister a parser.
      */
 
   }, {
-    key: 'unregister',
-    value: function unregister(parser, lang, delims) {
-      if (typeof parser === 'string') {
-        delims = lang;
-        lang = parser;
-        parser = null;
+    key: "unregister",
+    value: function unregister(parserOrOptions, options) {
+      var _this3 = this;
+
+      if (!parserOrOptions) {
+        throw new Error("preliminaries.unregister: expected a parser or options as the first argument");
       }
-      if (!lang && parser && !parser.lang) {
-        throw new Error('preliminaries expects a parser with a lang or a lang option');
+      var anyParserOrOptions = parserOrOptions;
+      var hasParser = arguments.length > 1 || typeof anyParserOrOptions.parse === "function" || typeof anyParserOrOptions.stringify === "function";
+      var possibleOptions = hasParser ? options : parserOrOptions;
+      var parser = hasParser ? parserOrOptions : null;
+      // Must be a parser with a defaultLang or
+      // defaultDelims or some options with a lang or delims.
+      if (!(parser && (parser.defaultLang || parser.defaultDelims)) || !(possibleOptions && (possibleOptions.lang || possibleOptions.delims))) {
+        throw new Error("preliminaries.unregister: nothing to unregister, expected a parser with a defaultLang or defaultDelims property and/or lang or delims options");
       }
-      lang = lang || parser && parser.lang;
-      if (Array.isArray(lang)) {
-        lang.forEach(function (l) {
-          if (Array.isArray(l)) {
-            throw new Error('preliminaries does not currently handle nested arrays');
+      // Delete parser by language, if any
+      if (possibleOptions && possibleOptions.lang || parser.defaultLang) {
+        var langs = arrayify(possibleOptions && possibleOptions.lang || parser.defaultLang);
+        langs.forEach(function (lang) {
+          if (typeof lang !== "string") {
+            throw new Error("preliminaries.unregister: expected lang to be a string but got '" + lang + "'");
           }
-          this.unregister(parser, l, delims);
+          delete _this3.__parsers[lang];
         });
-        return preliminaries;
       }
-      if (typeof lang !== 'string') {
-        throw new Error('preliminaries expects a language string');
-      }
-      var existingParser = this.parsers[lang];
-      if (existingParser) {
-        delete this.parsers[lang];
-        delims = arguments.length > 2 ? delims : parser ? parser.delims : existingParser.delims;
-        if (delims) {
-          delete this.parsersLangByFirstDelim[arrayify(delims)[0]];
-        }
+      // Delete registrations by delimiter, if any
+      if (possibleOptions && possibleOptions.delims || parser.defaultDelims) {
+        var _delims2 = arrayify(possibleOptions && possibleOptions.delims || parser.defaultDelims);
+        delete this.__parsersByFirstDelim[_delims2[0]];
       }
       return this;
     }
 
     /**
      * Check if a parser is registerable for the language, or all of the languages if an array is given.
-     *
-     * @param  {String} `lang` The language to check if a parser is registerable for.
      */
 
   }, {
-    key: 'registerable',
-    value: function registerable(parser, lang, delims) {
+    key: "registerable",
+    value: function registerable(parser, options) {
+      var _this4 = this;
+
       if (!parser) {
-        throw new Error('preliminaries expects a parser');
+        throw new Error("preliminaries.registerable: expected a parser as the first argument");
       }
-      if (!lang && !parser.lang) {
-        throw new Error('preliminaries expects a parser with a lang or a lang option');
+      if (!(options && options.lang) && !parser.defaultLang) {
+        throw new Error("preliminaries.registerable: expected a parser with a defaultLang property or a lang option");
       }
-      lang = lang || parser.lang;
-      if (Array.isArray(lang)) {
-        var all = true;
-        lang.forEach(function (l) {
-          if (Array.isArray(l)) {
-            throw new Error('preliminaries does not currently handle nested arrays');
-          }
-          all = preliminaries.registerable(parser, l, delims) && all;
-        });
-        return all;
-      }
-      if (typeof lang !== 'string') {
-        throw new Error('preliminaries expects a language string');
-      }
-      // Check if there is an existing parser
-      if (preliminaries.parsers[lang]) {
+      var langs = arrayify(options && options.lang || parser.defaultLang);
+      var everyLangNotRegistered = langs.every(function (lang) {
+        if (typeof lang !== "string") {
+          throw new Error("preliminaries.registerable: expected lang to be a string but got '" + lang + "'");
+        }
+        return !_this4.__parsers[lang];
+      });
+      var anyLangRegistered = !everyLangNotRegistered;
+      if (anyLangRegistered) {
         return false;
       }
       // Make sure the opening delimiters are unique (if present)
-      // or if not, that this is exactly the same parser (so an alias for an existing language)
-      delims = arguments.length > 2 ? delims : parser.delims;
-      if (delims) {
-        var a = arrayify(delims)[0];
-        var alang = preliminaries.parsersLangByFirstDelim[a];
-        if (alang && preliminaries.parsers[alang] !== parser) {
+      // or if not, that this is exactly the same parser (so an alias for an existing language).
+      if (options && options.delims || parser.defaultDelims) {
+        var _delims3 = arrayify(options && options.delims || parser.defaultDelims);
+        var firstDelim = _delims3[0];
+        var registeredParserLang = this.__parsersByFirstDelim[firstDelim];
+        var registeredParser = registeredParserLang ? this.__parsers[registeredParserLang] : null;
+        if (registeredParser && registeredParser !== parser) {
           return false;
         }
       }
@@ -361,111 +360,60 @@ var Preliminaries = function () {
     }
 
     /**
-     * Check if a parser is registered for the language, or any of the languages if an array is given.
-     *
-     * @param  {String} `lang` The language to check if a parser is registered for.
+     * Check if a parser is registered for a language or delimiters. You can pass an array
+     * of languages to check if a parser is registered for any langauge.
      */
 
   }, {
-    key: 'registered',
-    value: function registered(lang) {
-      if (Array.isArray(lang)) {
-        var any = false;
-        lang.forEach(function (l) {
-          if (Array.isArray(l)) {
-            throw new Error('preliminaries does not currently handle nested arrays');
+    key: "registered",
+    value: function registered(options) {
+      var _this5 = this;
+
+      // Check if a parser is registered for any language, if any
+      if (options && options.lang) {
+        var langs = arrayify(options && options.lang);
+        var everyLangNotRegistered = langs.every(function (lang) {
+          if (typeof lang !== "string") {
+            throw new Error("preliminaries.registered: expected lang to be a string but got '" + lang + "'");
           }
-          any = this.registered(l) || any;
+          return !_this5.__parsers[lang];
         });
-        return any;
+        var anyLangRegistered = !everyLangNotRegistered;
+        if (anyLangRegistered) {
+          return true;
+        }
       }
-      if (typeof lang !== 'string') {
-        throw new Error('preliminaries expects a language string');
+      // Check if a parser is registered for the delims, if any
+      if (options && options.delims) {
+        var _delims4 = arrayify(options.delims);
+        var firstDelim = _delims4[0];
+        var registeredParserLang = this.__parsersByFirstDelim[firstDelim];
+        var registeredParser = registeredParserLang ? this.__parsers[registeredParserLang] : null;
+        if (registeredParser) {
+          return true;
+        }
       }
-      var parser = this.parsers[lang];
-      return !!parser;
-    }
-
-    /**
-     * Return true if the given `string` has front matter.
-     *
-     * @param  {String} `string`
-     * @param  {Object} `options`
-     * @return {Boolean} True if front matter exists.
-     */
-
-  }, {
-    key: 'test',
-    value: function test(str, options) {
-      var delims = arrayify(options && options.delims || '---');
-      return isFirst(str, delims[0]);
-    }
-
-    /**
-     * Return true if the given `ch` the first
-     * thing in the string.
-     */
-
-  }, {
-    key: 'isFirst',
-    value: function isFirst(str, ch) {
-      return str.substr(0, ch.length) === ch;
-    }
-
-    /**
-     * Utility to strip byte order marks
-     */
-
-  }, {
-    key: 'stripBom',
-    value: function stripBom(str) {
-      return str.charAt(0) === '\uFEFF' ? str.slice(1) : str;
-    }
-
-    /**
-     * Typecast `val` to an array.
-     */
-
-  }, {
-    key: 'arrayify',
-    value: function arrayify(val) {
-      return !Array.isArray(val) ? [val] : val;
-    }
-
-    /**
-     * Normalize error messages
-     */
-
-  }, {
-    key: 'msg',
-    value: function msg(lang, err) {
-      return 'preliminaries parser [' + lang + ']: ' + err;
+      return false;
     }
   }, {
-    key: 'defaultLang',
+    key: "defaultLang",
     get: function get$$1() {
-      return this.defaultLang;
+      return this.__defaultLang;
     }
+
+    /**
+     * Returns the default delimiters for this preliminaries instance.
+     */
+
   }, {
-    key: 'defaultDelims',
+    key: "defaultDelims",
     get: function get$$1() {
-      return this.defaultDelims;
+      return this.__defaultDelims;
     }
   }]);
   return Preliminaries;
 }();
 
-/**
- * Expose factory for `Preliminaries`
- *
- * @type {Preliminaries}
- */
-
-
-function preliminaries(defaultLang, defaultDelims) {
-  return new Preliminaries(defaultLang, defaultDelims);
-}
-
-return preliminaries;
+return Preliminaries;
 
 })));
