@@ -68,53 +68,53 @@ function inferLang(
   return !!firstFoundDelim ? langSelector(firstFoundDelim) : null;
 }
 
-type PreliminariesConstructorOptions = {
-  lang: ?string,
-  delims: ?(string | string[])
-};
-
-type PreliminariesParseOptions = {
-  lang: ?string,
-  delims: ?(string | string[]),
-  parser: ?any
-};
-
-type PreliminariesParseResult = {
-  data: any,
-  content: string
-};
-
-type PreliminariesStringifyOptions = {
-  lang: ?string,
-  delims: ?(string | string[]),
-  parser: ?any,
-  includeLang: ?boolean,
-  useParserDelims: ?boolean
-};
-
-type PreliminariesTestOptions = {
-  delims: ?(string | string[])
-};
-
-type PreliminariesRegisterOptions = {
-  lang: ?(string | string[]),
-  delims: ?(string | string[])
-};
-
-interface PreliminariesParser {
-  defaultLang: ?(string | string[]),
-  defaultDelims: ?(string | string[]),
+export interface Parser {
+  defaultLang?: string | string[],
+  defaultDelims?: string | string[],
   parse(data: string): any,
   stringify(data: any): string
 }
 
+export type PreliminariesConstructorOptions = {
+  lang?: ?string,
+  delims?: string | string[]
+};
+
+export type PreliminariesParseOptions = {
+  lang?: string,
+  delims?: string | string[],
+  parser?: Parser
+};
+
+export type PreliminariesParseResult = {
+  data: any,
+  content: string
+};
+
+export type PreliminariesStringifyOptions = {
+  lang?: string,
+  delims?: string | string[],
+  parser?: Parser,
+  includeLang?: boolean,
+  useParserDelims?: boolean
+};
+
+export type PreliminariesTestOptions = {
+  delims?: string | string[]
+};
+
+export type PreliminariesRegisterOptions = {
+  lang?: string | string[],
+  delims?: string | string[]
+};
+
 export default class Preliminaries {
   __defaultLang: string;
   __defaultDelims: string | string[];
-  __parsers: { [string]: PreliminariesParser };
+  __parsers: { [string]: Parser };
   __parsersByFirstDelim: { [string]: string };
 
-  constructor(options: ?PreliminariesConstructorOptions) {
+  constructor(options?: PreliminariesConstructorOptions) {
     this.__defaultLang = (options && options.lang) || "json";
     this.__defaultDelims = (options && options.delims) || "---";
     this.__parsers = {};
@@ -141,7 +141,7 @@ export default class Preliminaries {
    */
   parse(
     str: string,
-    options: ?PreliminariesParseOptions
+    options?: PreliminariesParseOptions
   ): PreliminariesParseResult {
     if (typeof str !== "string") {
       throw new Error(
@@ -221,14 +221,14 @@ export default class Preliminaries {
     let data: any = {};
     if (frontmatter) {
       // If data exists, see if we have a matching parser
-      const parser: ?PreliminariesParser =
+      const parser: ?Parser =
         (options && options.parser) || this.__parsers[lang];
       if (!parser) {
         throw new Error(
           `preliminaries.parse: cannot find a parser for lang '${lang}'`
         );
       }
-      if (!typeof parser.parse !== "function") {
+      if (typeof parser.parse !== "function") {
         throw new Error(
           `preliminaries.parse: parser for lang '${lang}' does not have a parse method`
         );
@@ -253,19 +253,18 @@ export default class Preliminaries {
   stringify(
     str: string,
     data: any,
-    options: ?PreliminariesStringifyOptions
+    options?: PreliminariesStringifyOptions
   ): string {
     const lang: string = (options && options.lang) || this.__defaultLang;
-    const parser: ?PreliminariesParser =
-      (options && options.parser) || this.__parsers[lang];
+    const parser: ?Parser = (options && options.parser) || this.__parsers[lang];
     if (!parser) {
       throw new Error(
         `preliminaries.stringify: cannot find a parser for lang '${lang}'`
       );
     }
-    if (!typeof parser.stringify !== "function") {
+    if (typeof parser.stringify !== "function") {
       throw new Error(
-        `preliminaries.stringify: parser for lang '${lang}' does not have a stringify method`
+        `preliminaries.stringify: parser for lang '${lang}' does not have a stringify method'`
       );
     }
     const useParserDelims: boolean = !!(options &&
@@ -301,7 +300,7 @@ export default class Preliminaries {
    * Register a parser.
    */
   register(
-    parser: PreliminariesParser,
+    parser: Parser,
     options: ?PreliminariesRegisterOptions
   ): Preliminaries {
     if (!parser) {
@@ -337,7 +336,7 @@ export default class Preliminaries {
       const registeredParserLang: ?string = this.__parsersByFirstDelim[
         firstDelim
       ];
-      const registeredParser: ?PreliminariesParser = registeredParserLang
+      const registeredParser: ?Parser = registeredParserLang
         ? this.__parsers[registeredParserLang]
         : null;
       if (
@@ -359,7 +358,7 @@ export default class Preliminaries {
    * Unegister a parser.
    */
   unregister(
-    parserOrOptions: PreliminariesParser | PreliminariesRegisterOptions,
+    parserOrOptions: Parser | PreliminariesRegisterOptions,
     options: ?PreliminariesRegisterOptions
   ): Preliminaries {
     if (!parserOrOptions) {
@@ -375,9 +374,7 @@ export default class Preliminaries {
     const possibleOptions: ?PreliminariesRegisterOptions = (hasParser
       ? options
       : parserOrOptions: any);
-    const parser: ?PreliminariesParser = (hasParser
-      ? parserOrOptions
-      : null: any);
+    const parser: ?Parser = (hasParser ? parserOrOptions : null: any);
     // Must be a parser with a defaultLang or
     // defaultDelims or some options with a lang or delims.
     if (
@@ -416,7 +413,7 @@ export default class Preliminaries {
    * Check if a parser is registerable for the language, or all of the languages if an array is given.
    */
   registerable(
-    parser: PreliminariesParser,
+    parser: Parser,
     options: ?PreliminariesRegisterOptions
   ): boolean {
     if (!parser) {
@@ -454,7 +451,7 @@ export default class Preliminaries {
       const registeredParserLang: ?string = this.__parsersByFirstDelim[
         firstDelim
       ];
-      const registeredParser: ?PreliminariesParser = registeredParserLang
+      const registeredParser: ?Parser = registeredParserLang
         ? this.__parsers[registeredParserLang]
         : null;
       if (registeredParser && registeredParser !== parser) {
@@ -492,7 +489,7 @@ export default class Preliminaries {
       const registeredParserLang: ?string = this.__parsersByFirstDelim[
         firstDelim
       ];
-      const registeredParser: ?PreliminariesParser = registeredParserLang
+      const registeredParser: ?Parser = registeredParserLang
         ? this.__parsers[registeredParserLang]
         : null;
       if (registeredParser) {
