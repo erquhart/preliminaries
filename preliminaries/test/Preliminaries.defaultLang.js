@@ -14,6 +14,6 @@ import Preliminaries from "../src/Preliminaries";
 describe("Preliminaries.defaultLang:", () => {
   it("should return `json`", () => {
     const preliminaries: Preliminaries = new Preliminaries();
-    expect(preliminaries.defaultLang).toBe('json');
+    expect(preliminaries.defaultLang).toBe("json");
   });
 });

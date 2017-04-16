@@ -153,7 +153,7 @@ export default class Preliminaries {
         "preliminaries.parse: expected a string to parse as the first argument"
       );
     }
-    const defaultResult: PreliminariesParseResult = { data: {}, content: '' };
+    const defaultResult: PreliminariesParseResult = { data: {}, content: "" };
     if (str === "") {
       return defaultResult;
     }
@@ -168,7 +168,10 @@ export default class Preliminaries {
       ? inferDelims(
           str,
           this.__defaultDelims,
-          d => (this.__parsersByFirstDelim[d] && this.__parsersByFirstDelim[d].delims) || null
+          d =>
+            (this.__parsersByFirstDelim[d] &&
+              this.__parsersByFirstDelim[d].delims) ||
+            null
         )
       : null;
     // Delimiters
@@ -178,16 +181,20 @@ export default class Preliminaries {
     // If the first delim isn't the first thing, return
     const firstDelim: string = delims[0];
     if (!isFirst(str, firstDelim)) {
-      throw new Error(`preliminaries.parse: first delim '${firstDelim}' does not match first ${firstDelim.length} characters of string '${str.substr(0, firstDelim.length)}'`);
+      throw new Error(
+        `preliminaries.parse: first delim '${firstDelim}' does not match first ${firstDelim.length} characters of string '${str.substr(0, firstDelim.length)}'`
+      );
     }
     const firstDelimLen: number = firstDelim.length;
     const newlineLastDelim: string = "\n" + (delims[1] || delims[0]);
     // If the next character after the first delim
-    // is a character in the first delim, then throw 
+    // is a character in the first delim, then throw
     // an error. It's either a bad delim or not a delimiter at all.
     const charAfterFirstDelim: string = str.charAt(firstDelimLen);
     if (charAfterFirstDelim && firstDelim.indexOf(charAfterFirstDelim) !== -1) {
-      throw new Error(`preliminaries.parse: character '${charAfterFirstDelim}' after first delim '${firstDelim}' is contained in the first delim`);
+      throw new Error(
+        `preliminaries.parse: character '${charAfterFirstDelim}' after first delim '${firstDelim}' is contained in the first delim`
+      );
     }
     // Find the index of the next delimiter before
     // going any further. If not found, throw.
@@ -201,7 +208,9 @@ export default class Preliminaries {
         // Set to the end of the document
         end = len;
       } else {
-        throw new Error(`preliminaries.parse: last delim '${delims[1] || delims[0]}' not found`);
+        throw new Error(
+          `preliminaries.parse: last delim '${delims[1] || delims[0]}' not found`
+        );
       }
     }
     // Detect a language from after the first delimiters, if defined

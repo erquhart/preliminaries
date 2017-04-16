@@ -14,6 +14,6 @@ import Preliminaries from "../src/Preliminaries";
 describe("Preliminaries.defaultDelims:", () => {
   it("should return `---`", () => {
     const preliminaries: Preliminaries = new Preliminaries();
-    expect(preliminaries.defaultDelims).toBe('---');
+    expect(preliminaries.defaultDelims).toBe("---");
   });
 });

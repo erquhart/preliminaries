@@ -40,7 +40,9 @@ class ErrorParser implements Parser {
 describe("Preliminaries.parse:", () => {
   it("should throw an error when a string is not passed", () => {
     const preliminaries: Preliminaries = new Preliminaries();
-    expect(() => preliminaries.parse()).toThrow("preliminaries.parse: expected a string to parse as the first argument");
+    expect(() => preliminaries.parse()).toThrow(
+      "preliminaries.parse: expected a string to parse as the first argument"
+    );
   });
 
   it("should return an object when the string is 0 length", () => {
@@ -51,17 +53,21 @@ describe("Preliminaries.parse:", () => {
   it("should throw an error when parsing a string that is only the open delimiter", () => {
     const preliminaries: Preliminaries = new Preliminaries();
     const fixture: string = "{";
-    expect(() => preliminaries.parse(fixture, {
-      delims: "{"
-    })).toThrow("preliminaries.parse: last delim '{' not found");
+    expect(() =>
+      preliminaries.parse(fixture, {
+        delims: "{"
+      })
+    ).toThrow("preliminaries.parse: last delim '{' not found");
   });
 
   it("should throw an error when parsing a string that is just the open delimiter and language", () => {
     const preliminaries: Preliminaries = new Preliminaries();
     const fixture: string = "{json";
-    expect(() => preliminaries.parse(fixture, {
-      delims: "{"
-    })).toThrow("preliminaries.parse: last delim '{' not found");
+    expect(() =>
+      preliminaries.parse(fixture, {
+        delims: "{"
+      })
+    ).toThrow("preliminaries.parse: last delim '{' not found");
   });
 
   it("should allow a custom parser to be used", function() {
@@ -111,7 +117,9 @@ describe("Preliminaries.parse:", () => {
       it("should throw an error when no parser is registered for the language", () => {
         const preliminaries: Preliminaries = new Preliminaries();
         const fixture: string = `---test${lineEnding}{${lineEnding}"abc":"xyz"${lineEnding}}${lineEnding}---`;
-        expect(() => preliminaries.parse(fixture, { delims: "---" })).toThrow("preliminaries.parse: cannot find parser for lang 'test'");
+        expect(() => preliminaries.parse(fixture, { delims: "---" })).toThrow(
+          "preliminaries.parse: cannot find parser for lang 'test'"
+        );
       });
 
       it("should throw an error when front matter cannot be parsed", () => {
@@ -119,7 +127,9 @@ describe("Preliminaries.parse:", () => {
         const fixture: string = `---${lineEnding}{${lineEnding}"abc":"xyz"${lineEnding}}${lineEnding}---`;
         const error: string = "Boop!";
         const parser: Parser = new ErrorParser(error);
-        expect(() => preliminaries.parse(fixture, { parser, delims: "---" })).toThrow(error);
+        expect(() =>
+          preliminaries.parse(fixture, { parser, delims: "---" })
+        ).toThrow(error);
       });
 
       it("should correctly identify delimiters and ignore strings that look like delimiters", () => {
@@ -141,39 +151,47 @@ describe("Preliminaries.parse:", () => {
         const preliminaries: Preliminaries = new Preliminaries();
         const fixture: string = `---${lineEnding}{${lineEnding}"title":"Test"${lineEnding}}${lineEnding}`;
         const parser: Parser = new ParseParser({ field: "value" });
-        expect(() => preliminaries.parse(fixture, {
-          delims: "---"
-        })).toThrow("preliminaries.parse: last delim '---' not found");
+        expect(() =>
+          preliminaries.parse(fixture, {
+            delims: "---"
+          })
+        ).toThrow("preliminaries.parse: last delim '---' not found");
       });
 
       it("should throw an error when parsing a string that is just the open delimiter", () => {
         const preliminaries: Preliminaries = new Preliminaries();
         const fixture: string = `---${lineEnding}`;
         const parser: Parser = new ParseParser({ field: "value" });
-        expect(() => preliminaries.parse(fixture, {
-          delims: "---",
-          parser
-        })).toThrow("preliminaries.parse: last delim '---' not found");
+        expect(() =>
+          preliminaries.parse(fixture, {
+            delims: "---",
+            parser
+          })
+        ).toThrow("preliminaries.parse: last delim '---' not found");
       });
 
       it("should throw an when parsing a string that is just the open delimiter and language", () => {
         const preliminaries: Preliminaries = new Preliminaries();
         const fixture: string = `{json${lineEnding}`;
         const parser: Parser = new ParseParser({ field: "value" });
-        expect(() => preliminaries.parse(fixture, {
-          delims: ["{", "}"],
-          parser
-        })).toThrow("preliminaries.parse: last delim '}' not found");
+        expect(() =>
+          preliminaries.parse(fixture, {
+            delims: ["{", "}"],
+            parser
+          })
+        ).toThrow("preliminaries.parse: last delim '}' not found");
       });
 
       it("should throw when parsing a string without a close delimiter", () => {
         const preliminaries: Preliminaries = new Preliminaries();
         const fixture: string = `{${lineEnding}"title":"JSON",${lineEnding}"description":"A nice story"`;
         const parser: Parser = new ParseParser({ field: "value" });
-        expect(() => preliminaries.parse(fixture, {
-          delims: ["{", "}"],
-          parser
-        })).toThrow("preliminaries.parse: last delim '}' not found");
+        expect(() =>
+          preliminaries.parse(fixture, {
+            delims: ["{", "}"],
+            parser
+          })
+        ).toThrow("preliminaries.parse: last delim '}' not found");
       });
 
       it("should parse a string without a close delimiter when allowMissingLastDelim is `true`", () => {
@@ -181,21 +199,27 @@ describe("Preliminaries.parse:", () => {
         const fixture: string = `{${lineEnding}"title":"JSON",${lineEnding}"description":"A nice story"`;
         const data: any = { field: "value" };
         const parser: Parser = new ParseParser(data);
-        expect(preliminaries.parse(fixture, {
-          delims: ["{", "}"],
-          parser,
-          allowMissingLastDelim: true
-        })).toEqual({data, content: ''});
+        expect(
+          preliminaries.parse(fixture, {
+            delims: ["{", "}"],
+            parser,
+            allowMissingLastDelim: true
+          })
+        ).toEqual({ data, content: "" });
       });
 
       it("should throw when parsing content that looks like front matter", () => {
         const preliminaries: Preliminaries = new Preliminaries();
         const fixture: string = `-----------name--------------value${lineEnding}foo`;
         const parser: Parser = new ParseParser({ field: "value" });
-        expect(() => preliminaries.parse(fixture, {
-          delims: "---",
-          parser
-        })).toThrow("preliminaries.parse: character '-' after first delim '---' is contained in the first delim");
+        expect(() =>
+          preliminaries.parse(fixture, {
+            delims: "---",
+            parser
+          })
+        ).toThrow(
+          "preliminaries.parse: character '-' after first delim '---' is contained in the first delim"
+        );
       });
     });
   });
