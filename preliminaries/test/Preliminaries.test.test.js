@@ -11,7 +11,7 @@
 
 import Preliminaries from "../src/Preliminaries";
 
-describe("Test strings:", () => {
+describe("Preliminaries.test:", () => {
   it("should return `true` if the string has front matter", () => {
     const preliminaries: Preliminaries = new Preliminaries();
     expect(preliminaries.test("---\nabc: xyz\n---")).toBe(true);

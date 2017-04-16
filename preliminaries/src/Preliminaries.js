@@ -32,14 +32,13 @@ function arrayify(val: any): any[] {
 }
 
 /**
- * Infer the language from the first delimiter 
- * if a parser is registered for that delimiter.
+ * Infer the parser from the first delimiter.
  */
-function inferLang(
+function inferDelims(
   str: string,
   delims: string | string[],
-  langSelector: string => ?string
-): ?string {
+  delimsSelector: string => ?(string[])
+): ?(string[]) {
   const len: number = str.length;
   // Don't infer if the document has a language in the front matter like `---yaml`
   const delimsArr: string[] = arrayify(delims);
@@ -65,7 +64,7 @@ function inferLang(
     ? firstFoundDelim.substr(0, firstFoundDelimLastCharIdx)
     : firstFoundDelim;
   firstFoundDelim = firstFoundDelim.trim();
-  return !!firstFoundDelim ? langSelector(firstFoundDelim) : null;
+  return !!firstFoundDelim ? delimsSelector(firstFoundDelim) : null;
 }
 
 export interface Parser {
@@ -83,7 +82,8 @@ export type PreliminariesConstructorOptions = {
 export type PreliminariesParseOptions = {
   lang?: string,
   delims?: string | string[],
-  parser?: Parser
+  parser?: Parser,
+  allowMissingLastDelim?: boolean
 };
 
 export type PreliminariesParseResult = {
@@ -108,11 +108,16 @@ export type PreliminariesRegisterOptions = {
   delims?: string | string[]
 };
 
+type PreliminariesParserRegistration = {
+  delims: string[],
+  parser: Parser
+};
+
 export default class Preliminaries {
   __defaultLang: string;
   __defaultDelims: string | string[];
   __parsers: { [string]: Parser };
-  __parsersByFirstDelim: { [string]: string };
+  __parsersByFirstDelim: { [string]: PreliminariesParserRegistration };
 
   constructor(options?: PreliminariesConstructorOptions) {
     this.__defaultLang = (options && options.lang) || "json";
@@ -148,8 +153,9 @@ export default class Preliminaries {
         "preliminaries.parse: expected a string to parse as the first argument"
       );
     }
+    const defaultResult: PreliminariesParseResult = { data: {}, content: '' };
     if (str === "") {
-      return { data: {}, content: "" };
+      return defaultResult;
     }
     // Strip byte order marks
     str = stripBom(str);
@@ -158,11 +164,12 @@ export default class Preliminaries {
     // try to infer the language by matching the first delimiter with parsers
     const infer: boolean =
       !options || (!options.delims && !options.lang && !options.parser);
-    const inferredLang: ?string = infer
-      ? inferLang(str, this.__defaultDelims, d => this.__parsersByFirstDelim[d])
-      : null;
-    const inferredDelims: ?(string | string[]) = inferredLang
-      ? this.__parsers[inferredLang].defaultDelims
+    const inferredDelims: ?(string[]) = infer
+      ? inferDelims(
+          str,
+          this.__defaultDelims,
+          d => (this.__parsersByFirstDelim[d] && this.__parsersByFirstDelim[d].delims) || null
+        )
       : null;
     // Delimiters
     const delims: string[] = arrayify(
@@ -171,66 +178,73 @@ export default class Preliminaries {
     // If the first delim isn't the first thing, return
     const firstDelim: string = delims[0];
     if (!isFirst(str, firstDelim)) {
-      return { data: {}, content: "" };
+      throw new Error(`preliminaries.parse: first delim '${firstDelim}' does not match first ${firstDelim.length} characters of string '${str.substr(0, firstDelim.length)}'`);
     }
     const firstDelimLen: number = firstDelim.length;
     const newlineLastDelim: string = "\n" + (delims[1] || delims[0]);
     // If the next character after the first delim
-    // is a character in the first delim, then just
-    // return the default object. It's either a bad
-    // delim or not a delimiter at all.
+    // is a character in the first delim, then throw 
+    // an error. It's either a bad delim or not a delimiter at all.
     const charAfterFirstDelim: string = str.charAt(firstDelimLen);
     if (charAfterFirstDelim && firstDelim.indexOf(charAfterFirstDelim) !== -1) {
-      return { data: {}, content: "" };
+      throw new Error(`preliminaries.parse: character '${charAfterFirstDelim}' after first delim '${firstDelim}' is contained in the first delim`);
     }
     // Find the index of the next delimiter before
-    // going any further. If not found, treat the end
-    // of the document as the end.
+    // going any further. If not found, throw.
     const lastDelimIdx: number = str.indexOf(
       newlineLastDelim,
       firstDelimLen + 1
     );
-    const end: number = lastDelimIdx === -1 ? len : lastDelimIdx;
+    let end: number = lastDelimIdx;
+    if (lastDelimIdx === -1) {
+      if (options && options.allowMissingLastDelim) {
+        // Set to the end of the document
+        end = len;
+      } else {
+        throw new Error(`preliminaries.parse: last delim '${delims[1] || delims[0]}' not found`);
+      }
+    }
     // Detect a language from after the first delimiters, if defined
     let detectedLang: string = str.slice(firstDelimLen, str.indexOf("\n"));
     // Measure the lang before trimming whitespace
     const start: number = firstDelimLen + detectedLang.length;
-    detectedLang = detectedLang.trim();
-    // Check languages match if language is important
-    // i.e. a custom parser is not defined.
-    const detectedLanguageAndNoCustomParser: boolean =
-      !!detectedLang && (!options || !options.parser);
-    if (
-      detectedLanguageAndNoCustomParser &&
-      options &&
-      options.lang &&
-      detectedLang !== options.lang
-    ) {
-      throw new Error(
-        `preliminaries.parse: detected a different lang '${detectedLang}' to the lang option '${options.lang}'`
-      );
-    }
-    // The final language
-    const lang: string =
-      (options && options.lang) ||
-      detectedLang ||
-      inferredLang ||
-      this.__defaultLang;
     // Get the front matter
     const frontmatter: string = str.slice(start, end).trim();
     let data: any = {};
     if (frontmatter) {
-      // If data exists, see if we have a matching parser
-      const parser: ?Parser =
-        (options && options.parser) || this.__parsers[lang];
-      if (!parser) {
-        throw new Error(
-          `preliminaries.parse: cannot find a parser for lang '${lang}'`
-        );
+      let parser: ?Parser = null;
+      if (options && options.parser) {
+        parser = options.parser;
+      } else if (inferredDelims) {
+        parser = this.__parsersByFirstDelim[inferredDelims[0]].parser;
+      } else {
+        detectedLang = detectedLang.trim();
+        // Check languages match if language is important
+        // i.e. a custom parser is not defined.
+        if (
+          detectedLang &&
+          options &&
+          options.lang &&
+          detectedLang !== options.lang
+        ) {
+          throw new Error(
+            `preliminaries.parse: detected a different lang '${detectedLang}' to the lang option '${options.lang}'`
+          );
+        }
+
+        // The final language
+        const lang: string =
+          (options && options.lang) || detectedLang || this.__defaultLang;
+        parser = this.__parsers[lang];
+        if (!parser) {
+          throw new Error(
+            `preliminaries.parse: cannot find parser for lang '${lang}'`
+          );
+        }
       }
       if (typeof parser.parse !== "function") {
         throw new Error(
-          `preliminaries.parse: parser for lang '${lang}' does not have a parse method`
+          `preliminaries.parse: parser does not have a parse method`
         );
       }
       // Protect against a bad parser returning null
@@ -238,7 +252,7 @@ export default class Preliminaries {
     }
     // Grab the content from the string, stripping
     // an optional new line after the second delim.
-    let content: string = str.substr(lastDelimIdx + newlineLastDelim.length);
+    let content: string = str.substr(end + newlineLastDelim.length);
     if (content.charAt(0) === "\n") {
       content = content.substr(1);
     } else if (content.charAt(0) === "\r" && content.charAt(1) === "\n") {
@@ -333,20 +347,18 @@ export default class Preliminaries {
         (options && options.delims) || parser.defaultDelims
       );
       const firstDelim: string = delims[0];
-      const registeredParserLang: ?string = this.__parsersByFirstDelim[
-        firstDelim
-      ];
-      const registeredParser: ?Parser = registeredParserLang
-        ? this.__parsers[registeredParserLang]
-        : null;
+      const parserRegistration: ?PreliminariesParserRegistration = this
+        .__parsersByFirstDelim[firstDelim];
+      const registeredParser: ?Parser =
+        (parserRegistration && parserRegistration.parser) || null;
       if (
-        registeredParserLang && registeredParser && registeredParser !== parser
+        parserRegistration && registeredParser && registeredParser !== parser
       ) {
         throw new Error(
-          `preliminaries.register: cannot register the parser because the opening delims '${delims[0]}' clash with an already registered parser for lang '${registeredParserLang}'`
+          `preliminaries.register: cannot register the parser because a parser is already registered for opening delims '${delims[0]}'`
         );
       }
-      this.__parsersByFirstDelim[firstDelim] = langs[0];
+      this.__parsersByFirstDelim[firstDelim] = { delims, parser };
     }
     langs.forEach(lang => {
       this.__parsers[lang] = parser;
@@ -448,12 +460,10 @@ export default class Preliminaries {
         (options && options.delims) || parser.defaultDelims
       );
       const firstDelim: string = delims[0];
-      const registeredParserLang: ?string = this.__parsersByFirstDelim[
-        firstDelim
-      ];
-      const registeredParser: ?Parser = registeredParserLang
-        ? this.__parsers[registeredParserLang]
-        : null;
+      const parserRegistration: ?PreliminariesParserRegistration = this
+        .__parsersByFirstDelim[firstDelim];
+      const registeredParser: ?Parser =
+        (parserRegistration && parserRegistration.parser) || null;
       if (registeredParser && registeredParser !== parser) {
         return false;
       }
@@ -486,12 +496,10 @@ export default class Preliminaries {
     if (options && options.delims) {
       const delims: string[] = arrayify(options.delims);
       const firstDelim: string = delims[0];
-      const registeredParserLang: ?string = this.__parsersByFirstDelim[
-        firstDelim
-      ];
-      const registeredParser: ?Parser = registeredParserLang
-        ? this.__parsers[registeredParserLang]
-        : null;
+      const parserRegistration: ?PreliminariesParserRegistration = this
+        .__parsersByFirstDelim[firstDelim];
+      const registeredParser: ?Parser =
+        (parserRegistration && parserRegistration.parser) || null;
       if (registeredParser) {
         return true;
       }
